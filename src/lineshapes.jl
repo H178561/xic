@@ -6,8 +6,9 @@ function F²(l, p, p0, d)
     p0R = p0 * d
     l == 0 && return 1.0
     l == 1 && return (1 + p0R^2) / (1 + pR^2)
-    l != 2 && error("l>2 cannot be")
-    return (9 + 3p0R^2 + p0R^4) / (9 + 3pR^2 + pR^4)
+    l == 2 && return (9 + 3p0R^2 + p0R^4) / (9 + 3pR^2 + pR^4)
+    l != 3 && error("l==$(l)>2 cannot be")
+    return (225 + 45 * (p0R^2) + 6 * (p0R^2)^2 + (p0R^2)^3) / (225 + 45 * (pR^2) + 6 * (pR^2)^2 + (pR^2)^3)
 end
 
 
