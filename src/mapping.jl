@@ -21,7 +21,7 @@ function selectindexmap(isobarname)
     return couplingindexmap[first(m)]
 end
 
-function parname2decaychain(parname, isobars)
+function parname2decaychain(parname, isobars; tbs)
     isobarname = parname[3:end-1]
     #
     @unpack k, Hij, two_j, Xlineshape, parity = isobars[isobarname]
