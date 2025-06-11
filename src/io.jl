@@ -23,7 +23,7 @@ end
 ifhyphenaverage(v::Number) = v
 
 
-function definechaininputs(key, dict)
+function definechaininputs(key, dict; tbs)
     @unpack mass, width, lineshape = dict
     #
     k = Dict('K' => 1, 'D' => 3, 'L' => 2)[first(key)]
@@ -36,7 +36,7 @@ function definechaininputs(key, dict)
     #
     i, j = ij_from_k(k)
     #
-    @unpack two_js = tbs
+    @unpack ms, two_js = tbs
     #
     reaction_ij = jp_R => (SpinParity(two_js[i], parities[i]), SpinParity(two_js[j], parities[j]))
     reaction_Rk(P0) = SpinParity(two_js[4], P0) => (jp_R, SpinParity(two_js[k], parities[k]))
@@ -92,12 +92,23 @@ end
 
 function parse_model_dictionaries(modeldict; particledict)
 
+    # 0) get kinematics
+    _tbs = let
+        _mΛc = particledict["Lambda_c+"]["mass"] / 1e3
+        _mp = particledict["p"]["mass"] / 1e3
+        _mπ = particledict["pi+"]["mass"] / 1e3
+        _mK = particledict["K-"]["mass"] / 1e3
+        # 
+        _ms = ThreeBodyMasses(m1=_mp, m2=_mπ, m3=_mK, m0=_mΛc)
+        ThreeBodySystem(_ms, ThreeBodySpins(1, 0, 0; two_h0=1))
+    end
+
     # 1) get isobars
     isobars = Dict()
     for (key, lineshape) in modeldict["lineshapes"]
         dict = Dict{String,Any}(particledict[key])
         dict["lineshape"] = lineshape
-        isobars[key] = definechaininputs(key, dict)
+        isobars[key] = definechaininputs(key, dict; tbs=_tbs)
     end
 
     # 3) get parameters
@@ -125,7 +136,7 @@ function parse_model_dictionaries(modeldict; particledict)
         value_im = MeasuredParameter(defaultparameters[c_im_key]).val
         value = value_re + 1im * value_im
         #
-        c0, d = parname2decaychain(parname, isobars)
+        c0, d = parname2decaychain(parname, isobars; tbs=_tbs)
         #
         push!(terms, (c0 * value, d))
     end
@@ -141,7 +152,7 @@ end
 """
     expose_model_description()
 
-Reads the data, returns disctionaries of isobars and list of a dictionary of models with their parameters.
+Reads the data, returns dictionaries of isobars and list of a dictionary of models with their parameters.
 """
 function expose_model_description()
     particledict = YAML.load_file(joinpath(@__DIR__, "..", "data", "particle-definitions.yaml"))
