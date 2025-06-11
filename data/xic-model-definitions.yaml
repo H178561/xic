@@ -5,13 +5,21 @@ Default amplitude model:
     L(1600): BreitWignerMinL
     L(1670): BreitWignerMinL
     L(1690): BreitWignerMinL
+    L(1710): BreitWignerMinL
+    L(1800): BreitWignerMinL
+    L(1810): BreitWignerMinL
+    L(1820): BreitWignerMinL
+    L(1830): BreitWignerMinL
+    L(1890): BreitWignerMinL
     L(2000): BreitWignerMinL
     D(1232): BreitWignerMinL
     D(1600): BreitWignerMinL
+    D(1620): BreitWignerMinL
     D(1700): BreitWignerMinL
     K(700): BuggBreitWignerMinL
     K(892): BreitWignerMinL
     K(1430): BuggBreitWignerMinL
+    K2(1430): BreitWignerMinL
   parameters:
     # central value  ± Hesse ± model ± systematic
     ArL(1405)1: "-0.88 ± 0.22 ± 0.69 ± 0.17"
