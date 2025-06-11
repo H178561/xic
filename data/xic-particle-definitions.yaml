@@ -34,22 +34,22 @@ L(1405):
 L(1520):
   latex: \Lambda(1520)
   jp: 3/2^-
-  mass: 1515-1523
-  width: 10-20
+  mass: 1518.467
+  width: 15.195
   lineshape: BreitWignerMinL
 
 L(1600):
   latex: \Lambda(1600)
   jp: 1/2^+
   mass: 1630
-  width: 250
+  width: 200
   lineshape: BreitWignerMinL
 
 L(1670):
   latex: \Lambda(1670)
   jp: 1/2^-
-  mass: 1670
-  width: 30
+  mass: 1674.4
+  width: 27.2
   lineshape: BreitWignerMinL
 
 L(1690):
@@ -59,25 +59,53 @@ L(1690):
   width: 70
   lineshape: BreitWignerMinL
 
+L(1710):
+  latex: \Lambda(1710)
+  jp: 3/2^-
+  mass: 1713
+  width: 180
+  lineshape: BreitWignerMinL
+
 L(1800):
   latex: \Lambda(1800)
   jp: 1/2^-
   mass: 1800
-  width: 300
+  width: 200
   lineshape: BreitWignerMinL
 
 L(1810):
   latex: \Lambda(1810)
   jp: 1/2^+
-  mass: 1810
-  width: 150
+  mass: 1790
+  width: 110
+  lineshape: BreitWignerMinL
+
+L(1820):
+  latex: \Lambda(1820)
+  jp: 5/2^+
+  mass: 1820
+  width: 80
+  lineshape: BreitWignerMinL
+
+L(1830):
+  latex: \Lambda(1830)
+  jp: 5/2^-
+  mass: 1825
+  width: 90
+  lineshape: BreitWignerMinL
+
+L(1890):
+  latex: \Lambda(1890)
+  jp: 3/2^+
+  mass: 1890
+  width: 120
   lineshape: BreitWignerMinL
 
 L(2000):
   latex: \Lambda(2000)
   jp: 1/2^-
-  mass: 1900-2100
-  width: 20-400
+  mass: 1988.19
+  width: 179.26
   lineshape: BreitWignerMinL
 
 D(1232):
@@ -90,8 +118,8 @@ D(1232):
 D(1600):
   latex: \Delta(1600)
   jp: 3/2^+
-  mass: 1640
-  width: 300
+  mass: 1570
+  width: 250
   lineshape: BreitWignerMinL
 
 D(1620):
@@ -104,15 +132,15 @@ D(1620):
 D(1700):
   latex: \Delta(1700)
   jp: 3/2^-
-  mass: 1690
-  width: 380
+  mass: 1665
+  width: 250
   lineshape: BreitWignerMinL
 
 K(700):
   latex: K(700)
   jp: 0^+
-  mass: 824
-  width: 478
+  mass: 845
+  width: 468
   lineshape: BuggBreitWignerMinL
 
 K(892):
@@ -122,18 +150,18 @@ K(892):
   width: 47.3
   lineshape: BreitWignerMinL
 
-K(1410):
-  latex: K(1410)
-  jp: 1^-
-  mass: 1421
-  width: 236
-  lineshape: BuggBreitWignerMinL
+K2(1430):
+  latex: K(1430)
+  jp: 2^+
+  mass: 1432.4
+  width: 109
+  lineshape: BreitWignerMinL
 
 K(1430):
   latex: K(1430)
   jp: 0^+
-  mass: 1375
-  width: 190
+  mass: 1425
+  width: 270
   lineshape: BuggBreitWignerMinL
 
 # https://github.com/ComPWA/polarimetry/blob/34f5330/julia/notebooks/model0.jl#L43-L47
