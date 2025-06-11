@@ -41,6 +41,7 @@ end
 using Plots
 using QuadGK
 using DataFrames
+using Measurements
 import Plots.PlotMeasures.mm
 
 
@@ -66,11 +67,11 @@ end
 
 
 # histogram of the invariant mass distributions
-data = map(eachrow(rand(100_000, 2))) do y
+data = map(eachrow(rand(1_000_000, 2))) do y
     y2σs(y, masses(model))
 end |> v -> DataFrame(σs=v)
 subset!(data, :σs => ByRow(σs -> isphysical(σs, masses(model))))
-transform!(data,
+@time transform!(data,
     :σs => ByRow(σs -> unpolarized_intensity(model, σs)) => :weights,
     :σs => ByRow(identity) => AsTable)
 
@@ -85,3 +86,53 @@ let
     end
     plot!()
 end
+
+for name in unique(model.names)
+    _model = model[model.names.==name]
+    _weight = Symbol("weights_$name")
+    transform!(data,
+        :σs => ByRow(σs -> unpolarized_intensity(_model, σs)) => _weight)
+end
+
+
+# reduce the weights to sum
+stacked_weights = leftjoin(
+    stack(
+        combine(data,
+            Not(:σs, :σ1, :σ2, :σ3) .=> sum; renamecols=false),
+        value_name=:mean,
+    ),
+    stack(
+        combine(data,
+            Not(:σs, :σ1, :σ2, :σ3) .=> std; renamecols=false),
+        value_name=:std,
+    ); on=:variable)
+# create value as  m ± σ / sqrt(N)
+transform!(stacked_weights, [:mean, :std] => ByRow((m, σ) -> m ± σ / sqrt(size(data, 1))) => :value)
+# normalize the weights
+select!(stacked_weights, :variable, :value => (x -> x ./ stacked_weights[1, :value] * 100) =>
+    :fraction)
+# sort by fraction
+sort!(stacked_weights, [:fraction]; rev=true)
+
+print(DataFrames.pretty_table(stacked_weights))
+
+
+let
+    most_significant = stacked_weights[2:10, :].variable
+    plot(layout=grid(1, 3), size=(1200, 400), bottom_margin=5mm, yaxis=nothing)
+    map(enumerate(labels)) do (sp, (k, part_lab))
+        σ = Symbol("σ$k")
+        stephist!(data[!, σ]; data.weights, sp,
+            xlabel="m²($part_lab) [GeV]",
+            bins=100)
+        map(most_significant) do branch
+            lab = replace(branch, "weights_" => "")
+            stephist!(data[!, σ]; weights=getproperty(data, branch),
+                sp, lab,
+                bins=100)
+        end
+    end
+    plot!()
+end
+savefig(joinpath(@__DIR__, "..", "plots", "xic2pKpi-projections.png"))
