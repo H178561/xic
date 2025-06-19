@@ -1,5 +1,6 @@
 using Lc2ppiKSemileptonicModelLHCb
 using Lc2ppiKSemileptonicModelLHCb.ThreeBodyDecays
+using ProgressMeter
 using Statistics
 using Test
 using YAML
@@ -47,15 +48,16 @@ import Plots.PlotMeasures.mm
 
 
 theme(:boxed)
-plot(
+@time plot(
     masses(model), σs -> unpolarized_intensity(model, σs);
-    iσx=2, iσy=1)
+    iσx=2, iσy=1, title="Dalitz plot",
+    xlab="m²(pK⁻) [GeV²]", ylab="m²(K⁻π⁺) [GeV²]")
 
 labels = [(2, "pK⁻"), (1, "K⁻π⁺"), (3, "pπ⁺")]
 let
     plot(layout=grid(1, 3), size=(1200, 400), bottom_margin=5mm)
     n_bins = 100
-    map(enumerate(labels)) do (sp, (k, part_lab))
+    @showprogress map(enumerate(labels)) do (sp, (k, part_lab))
         x_ranges = lims(masses(model); k)
         plot!(range(x_ranges..., n_bins); sp, xlab="m²($part_lab) [GeV²]") do σ
             I = Base.Fix1(unpolarized_intensity, model)
@@ -65,7 +67,6 @@ let
     end
     plot!()
 end
-
 
 # histogram of the invariant mass distributions
 data = map(eachrow(rand(1_000_000, 2))) do y
@@ -88,7 +89,7 @@ let
     plot!()
 end
 
-for name in unique(model.names)
+@showprogress for name in unique(model.names)
     _model = model[model.names.==name]
     _weight = Symbol("weights_$name")
     transform!(data,
@@ -116,11 +117,11 @@ select!(stacked_weights, :variable, :value => (x -> x ./ stacked_weights[1, :val
 # sort by fraction
 sort!(stacked_weights, [:fraction]; rev=true)
 
-print(DataFrames.pretty_table(stacked_weights))
+print(DataFrames.pretty_table(stacked_weights; compact_printing=false))
 
 
 let
-    most_significant = stacked_weights[2:10, :].variable
+    most_significant = stacked_weights[2:end, :].variable
     plot(layout=grid(1, 3), size=(1200, 400), bottom_margin=5mm, yaxis=nothing)
     map(enumerate(labels)) do (sp, (k, part_lab))
         σ = Symbol("σ$k")

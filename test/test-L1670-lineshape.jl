@@ -1,8 +1,8 @@
-using Plots
-using QuadGK
-using Parameters
-
 using Lc2ppiKSemileptonicModelLHCb
+using Parameters
+using QuadGK
+using Plots
+
 
 theme(:boxed)
 
@@ -62,3 +62,28 @@ end
 
 plot!(m_range, m -> m * abs2(dNR(m^2));
     xlab="m [GeV]", ylab="|A|²", label="Flatte NR L(1670)")
+
+
+dNR_config = let
+    m = 1.6744
+    g1 = 0.0272
+    ma1, mb1 = 0.938272046, 0.493677
+    #
+    FlatteNR(m,
+        g1, ma1, mb1,
+        0.258, 1.115683, 0.547862)
+end
+
+plot!(m_range, m -> m * abs2(dNR_config(m^2)) / 2;
+    xlab="m [GeV]", ylab="|A|²", label="Flatte NR(wrong g1) L(1670)")
+
+struct BreitWigner
+    m::Float64
+    Γ::Float64
+end
+(d::BreitWigner)(σ::Float64) = 1 / (d.m^2 - σ - 1im * d.m * d.Γ)
+
+dBW = BreitWigner(1.6744, 0.0272)
+
+plot!(m_range, m -> m * abs2(dBW(m^2));
+    xlab="m [GeV]", ylab="|A|²", label="Breit Wigner L(1670)")
