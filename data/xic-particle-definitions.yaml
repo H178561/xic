@@ -2,7 +2,7 @@
 Lambda_c+:
   latex: \Lambda_c^+
   jp: 1/2^+
-  mass: 2467.1
+  mass: 2467.94
   width: 3.25e-9
 
 p:
@@ -41,7 +41,7 @@ L(1520):
 L(1600):
   latex: \Lambda(1600)
   jp: 1/2^+
-  mass: 1630
+  mass: 1600
   width: 200
   lineshape: BreitWignerMinL
 
@@ -125,7 +125,7 @@ D(1600):
 D(1620):
   latex: \Delta(1620)
   jp: 1/2^-
-  mass: 1620
+  mass: 1610
   width: 130
   lineshape: BreitWignerMinL
 
