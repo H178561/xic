@@ -49,8 +49,9 @@ L(1670):
   latex: \Lambda(1670)
   jp: 1/2^-
   mass: 1674.4
+  # width is not used in the model, rather hard-coded values for couplings
   width: 27.2
-  lineshape: BreitWignerMinL
+  lineshape: FlatteNR
 
 L(1690):
   latex: \Lambda(1690)
