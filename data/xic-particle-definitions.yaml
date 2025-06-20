@@ -138,7 +138,7 @@ D(1700):
   lineshape: BreitWignerMinL
 
 K(700):
-  latex: K(700)
+  latex: K0(700)
   jp: 0^+
   mass: 845
   width: 468
@@ -159,7 +159,7 @@ K2(1430):
   lineshape: BreitWignerMinL
 
 K(1430):
-  latex: K(1430)
+  latex: K0(1430)
   jp: 0^+
   mass: 1425
   width: 270
