@@ -3,7 +3,7 @@ Default amplitude model:
     L(1405): Flatte1405
     L(1520): BreitWignerMinL
     L(1600): BreitWignerMinL
-    L(1670): Flatte1670
+    L(1670): TFCode1670
     L(1690): BreitWignerMinL
     L(1710): BreitWignerMinL
     L(1800): BreitWignerMinL

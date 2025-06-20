@@ -90,7 +90,7 @@ function (BW::Flatte1405)(σ)
     1 / (m^2 - σ - 1im * m * Γ)
 end
 
-@with_kw struct Flatte1670{T} <: Lineshape
+@with_kw struct TFCode1670{T} <: Lineshape
     pars::T
     l::Int
     minL::Int
@@ -102,19 +102,20 @@ end
     mk::Float64
     m0::Float64
 end
-Flatte1670(pars::T; kw...) where {T} = Flatte1670(; pars, kw...)
+TFCode1670(pars::T; kw...) where {T} = TFCode1670(; pars, kw...)
 
 k(m, ma, mb) = breakup(m^2, ma^2, mb^2)
-function (d::Flatte1670)(σ::Float64)
+function (d::TFCode1670)(σ::Float64)
     mf, _ = d.pars
     # 
     # the value of the coupling comes from belle width / k to match G1 (const) for nominal mass
-    g1, ma1, mb1 = 0.0650186502727016, 0.938272046, 0.493677
+    g1 = 0.0272
     g2, ma2, mb2 = 0.258, 1.115683, 0.547862
 
     iϵ = 1e-6im
     m = sqrt(σ)
-    D = m - mf + 0.5im * (g1 * k(m + iϵ, ma1, mb1) + g2 * k(m + iϵ, ma2, mb2))
+    # the line does not look natural, but it's intentional
+    D = mf^2 - m^2 - 1im * (g1 + g2^2 * 2k(m + iϵ, ma2, mb2) / m)
     return 1 / D
 end
 
