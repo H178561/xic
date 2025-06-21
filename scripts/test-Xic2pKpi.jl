@@ -1,5 +1,6 @@
 using Lc2ppiKSemileptonicModelLHCb
 using Lc2ppiKSemileptonicModelLHCb.ThreeBodyDecays
+using DelimitedFiles
 using ProgressMeter
 using Statistics
 using Test
@@ -98,27 +99,46 @@ end
 
 
 # reduce the weights to sum
-stacked_weights = leftjoin(
-    stack(
-        combine(data,
-            Not(:σs, :σ1, :σ2, :σ3) .=> sum; renamecols=false),
-        value_name=:mean,
-    ),
-    stack(
-        combine(data,
-            Not(:σs, :σ1, :σ2, :σ3) .=> std; renamecols=false),
-        value_name=:std,
-    ); on=:variable)
-# create value as  m ± σ / sqrt(N)
-transform!(stacked_weights, [:mean, :std] => ByRow((m, σ) -> m ± σ / sqrt(size(data, 1))) => :value)
-# normalize the weights
-select!(stacked_weights, :variable, :value => (x -> x ./ stacked_weights[1, :value] * 100) =>
-    :fraction)
-# sort by fraction
-sort!(stacked_weights, [:fraction]; rev=true)
+stacked_weights = let
+    _table = leftjoin(
+        stack(
+            combine(data,
+                Not(:σs, :σ1, :σ2, :σ3) .=> sum; renamecols=false),
+            value_name=:mean,
+        ),
+        stack(
+            combine(data,
+                Not(:σs, :σ1, :σ2, :σ3) .=> std; renamecols=false),
+            value_name=:std,
+        ); on=:variable)
+    # create value as  m ± σ / sqrt(N)
+    transform!(_table, [:mean, :std] => ByRow((m, σ) -> m ± σ / sqrt(size(data, 1))) => :value)
+    # normalize the weights
+    select!(_table, :variable, :value => (x -> x ./ _table[1, :value] * 100) =>
+        :fraction)
+    # sort by fraction
+    sort!(_table, [:fraction]; rev=true)
+    subset!(_table, :variable => ByRow(x -> occursin("weights_", x)))
+    _table.variable .= map(x -> x[9:end], _table.variable)
+    _table
+end
 
-print(DataFrames.pretty_table(stacked_weights; compact_printing=false))
 
+fractions_ref = let
+    _data = readdlm(joinpath(@__DIR__, "..", "data", "fit-fractions-ref.txt"))[:, 1:3]
+    DataFrame(
+        variable=_data[:, 1] |> collect,
+        ref_fraction=_data[:, 2] .± _data[:, 3])
+end
+fit_fractions = leftjoin(stacked_weights, fractions_ref; on=:variable)
+
+print(DataFrames.pretty_table(fit_fractions; compact_printing=false))
+let
+    _, i = findmax(fit_fractions.fraction)
+    fit_fractions[:, 2] ./= fit_fractions[i, 2] / 100
+    fit_fractions[:, 3] ./= fit_fractions[i, 3] / 100
+    fit_fractions
+end
 
 let
     most_significant = stacked_weights[2:end, :].variable
@@ -138,3 +158,4 @@ let
     plot!()
 end
 savefig(joinpath(@__DIR__, "..", "plots", "xic2pKpi-projections.png"))
+
