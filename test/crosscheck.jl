@@ -111,26 +111,28 @@ end
 
 Adict2matrix(d::Dict) = parsepythoncomplex.(
     [d["A++"] d["A+-"]
-                                      d["A-+"] d["A--"]])
+                                            d["A-+"] d["A--"]])
 #
 
 crosscheckresult_realpars = filter(kv -> kv[1][2] == 'r', crosscheckresult["chains"])
 
-comparison = DataFrame()
-for (parname, adict) in crosscheckresult_realpars
-    c, d = parname2decaychain(parname, isobars; tbs)
-    M_DPD = [c * amplitude(d, σs0, [two_λ1, 0, 0, two_λ0])
-             for (two_λ0, two_λ1) in
-             [                                                                                                                                                                                                                                    (1, 1) (1, -1)
-        (-1, 1) (-1, -1)]]
-    M_LHCb′ = amplitudeLHCb2DPD(Adict2matrix(adict))
-    #
-    r = filter(x -> !(isnan(x)), vcat(M_DPD ./ M_LHCb′))
-    push!(comparison, (; parname = parname[3:end], r, M_DPD, M_LHCb′))
+comparison = let
+    _df = DataFrame()
+    for (parname, adict) in crosscheckresult_realpars
+        c, d = parname2decaychain(parname, isobars; tbs)
+        M_DPD = [c * amplitude(d, σs0, [two_λ1, 0, 0, two_λ0])
+                 for (two_λ0, two_λ1) in
+                 [                                                                                                                                                                                                                                                (1, 1) (1, -1)
+            (-1, 1) (-1, -1)]]
+        M_LHCb′ = amplitudeLHCb2DPD(Adict2matrix(adict))
+        #
+        r = filter(x -> !(isnan(x)), vcat(M_DPD ./ M_LHCb′))
+        push!(_df, (; parname = parname[3:end], r, M_DPD, M_LHCb′))
+    end
+    sort!(_df, order(:parname, by = x -> x[3:6]))
+    sort!(_df,
+        order(:parname, by = x -> findfirst(x[1], "LDK")))
+    _df
 end
-sort!(comparison, order(:parname, by = x -> x[3:6]))
-sort!(comparison,
-    order(:parname, by = x -> findfirst(x[1], "LDK")))
-
 
 println(comparison)
