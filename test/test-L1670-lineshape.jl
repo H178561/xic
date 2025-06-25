@@ -25,9 +25,9 @@ end
 d = FlatteBelle1670(1.6744, 0.0272, 1.115683, 0.547862, 0.258)
 
 
-m_range = range(1.55, 1.8, length=1000)
+m_range = range(1.55, 1.8, length = 1000)
 plot(m_range, m -> m * abs2(d(m^2));
-    xlab="m [GeV]", ylab="|A|²", label="Flatte Belle L(1670)")
+    xlab = "m [GeV]", ylab = "|A|²", label = "Flatte Belle L(1670)")
 
 # 
 struct FlatteNR
@@ -61,7 +61,7 @@ end
 
 
 plot!(m_range, m -> m * abs2(dNR(m^2));
-    xlab="m [GeV]", ylab="|A|²", label="Flatte NR L(1670)")
+    xlab = "m [GeV]", ylab = "|A|²", label = "Flatte NR L(1670)")
 
 struct BreitWigner
     m::Float64
@@ -72,7 +72,7 @@ end
 dBW = BreitWigner(1.6744, 0.0272)
 
 plot!(m_range, m -> m * abs2(dBW(m^2));
-    xlab="m [GeV]", ylab="|A|²", label="Breit Wigner L(1670)")
+    xlab = "m [GeV]", ylab = "|A|²", label = "Breit Wigner L(1670)")
 
 
 # TFCode1670
@@ -92,6 +92,6 @@ end
 
 dCode = TFCode1670(1.6744, 0.0272, 0.258, 1.115683, 0.547862)
 
-m_range = range(1.55, 1.8, length=1000)
+m_range = range(1.55, 1.8, length = 1000)
 plot!(m_range, m -> m * abs2(dCode(m^2));
-    xlab="m [GeV]", ylab="|A|²", label="In Code")
+    xlab = "m [GeV]", ylab = "|A|²", label = "In Code")

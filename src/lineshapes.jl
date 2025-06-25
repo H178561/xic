@@ -53,8 +53,8 @@ end
     m0::Float64
 end
 BuggBreitWignerMinL(pars::T; kw...) where {
-    T<:NamedTuple{X,Tuple{Float64,Float64}}} where {X} =
-    BuggBreitWignerMinL(; pars=merge(pars, (γ=1.1,)), kw...)
+    T <: NamedTuple{X, Tuple{Float64, Float64}}} where {X} =
+    BuggBreitWignerMinL(; pars = merge(pars, (γ = 1.1,)), kw...)
 #
 function (BW::BuggBreitWignerMinL)(σ)
     σA = mK^2 - mπ^2 / 2
@@ -112,10 +112,40 @@ function (d::TFCode1670)(σ::Float64)
     g1 = 0.0272
     g2, ma2, mb2 = 0.258, 1.115683, 0.547862
 
-    iϵ = 1e-6im
+    iϵ = 1e-8im
     m = sqrt(σ)
     # the line does not look natural, but it's intentional
     D = mf^2 - m^2 - 1im * (g1 + g2^2 * 2k(m + iϵ, ma2, mb2) / m)
+    return 1 / D
+end
+
+
+@with_kw struct L1670Flatte{T} <: Lineshape
+    pars::T
+    l::Int
+    minL::Int
+    #
+    name::String
+    #
+    m1::Float64
+    m2::Float64
+    mk::Float64
+    m0::Float64
+end
+L1670Flatte(pars::T; kw...) where {T} = L1670Flatte(; pars, kw...)
+
+k(m, ma, mb) = breakup(m^2, ma^2, mb^2)
+function (d::L1670Flatte)(σ::Float64)
+    mf, _ = d.pars
+    # 
+    # the value of the coupling comes from belle width / k to match G1 (const) for nominal mass
+    Γ0 = 0.0272
+    g, ma2, mb2 = 0.258, 1.115683, 0.547862
+
+    iϵ = 1e-8im
+    m = sqrt(σ)
+    # the line does not look natural, but it's intentional
+    D = mf - m - 0.5im * (Γ0 + g * k(m + iϵ, ma2, mb2))
     return 1 / D
 end
 
@@ -130,7 +160,7 @@ end
 
 
 @recipe function f(BW::Lineshape)
-    xv = range((BW.m1 + BW.m2)^2, (BW.m0 - BW.mk)^2, length=300)
+    xv = range((BW.m1 + BW.m2)^2, (BW.m0 - BW.mk)^2, length = 300)
     intensity(σ) = abs2(BW(σ)) *
                    breakup(σ, BW.m1^2, BW.m2^2) *
                    breakup(BW.m0^2, σ, BW.mk^2) / sqrt(σ)
