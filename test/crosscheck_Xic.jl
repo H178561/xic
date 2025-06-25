@@ -105,13 +105,20 @@ begin
     @assert tfL1690BW0 ≈ myL1690BW0
 end
 
-
 Adict2matrix(d::Dict) = parsepythoncomplex.([
     d["A++"] d["A+-"]
     d["A-+"] d["A--"]])
 
 # Filter for real parameters (Ar*)
 crosscheckresult_realpars = filter(kv -> kv[1][2] == 'r', crosscheckresult["chains"])
+
+MK = let
+    c, d = parname2decaychain("ArK(892)1", isobars; tbs)
+    M_DPD = [c * amplitude(d, σs0, [two_λ1, 0, 0, two_λ0])
+             for (two_λ0, two_λ1) in [
+        (1, 1) (1, -1)
+        (-1, 1) (-1, -1)]]
+end
 
 comparison = let
     _df = DataFrame()
@@ -121,6 +128,7 @@ comparison = let
                  for (two_λ0, two_λ1) in [
             (1, 1) (1, -1)
             (-1, 1) (-1, -1)]]
+        M_DPD += MK
         M_LHCb′ = amplitudeLHCb2DPD(Adict2matrix(adict))
         #
         r = filter(x -> !(isnan(x)), vcat(M_DPD ./ M_LHCb′))
@@ -135,7 +143,11 @@ end
 println("Xic model crosscheck results:")
 println(comparison)
 
+# 1e-3
 subset(comparison, :r => ByRow(x -> !all(abs.(x .- 1) .< 1e-3)))
+# 1e-8
+subset(comparison, :r => ByRow(x -> !all(abs.(x .- 1) .< 1e-8)))
+
 
 # # Additional test: verify that the model can be evaluated at the crosscheck point
 # println("\nTesting model evaluation at crosscheck point:")
