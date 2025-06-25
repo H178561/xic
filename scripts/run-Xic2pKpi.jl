@@ -25,8 +25,8 @@ model = Lc2ppiKModel(; chains, couplings, isobarnames)
 
 # get a random point in the phase space
 σs0 = Invariants(model.chains[1].tbs.ms;
-    σ1=0.7980703453578917,
-    σ2=3.6486261122281745)
+    σ1 = 0.7980703453578917,
+    σ2 = 3.6486261122281745)
 
 # call intensity
 _I = unpolarized_intensity(model, σs0)
@@ -37,7 +37,7 @@ _A = amplitude(model, σs0, [1, 0, 0, 1])  # pars: model, mandelstam variables, 
 @testset "Evaluation of the meeting" begin
     @test _I isa Real
     @test _A isa Complex
-    @test _A == amplitude(model, σs0, ThreeBodySpins(1, 0, 0; two_h0=1))
+    @test _A == amplitude(model, σs0, ThreeBodySpins(1, 0, 0; two_h0 = 1))
 end
 
 
@@ -51,16 +51,16 @@ import Plots.PlotMeasures.mm
 theme(:boxed)
 @time plot(
     masses(model), σs -> unpolarized_intensity(model, σs);
-    iσx=2, iσy=1, title="Dalitz plot",
-    xlab="m²(pK⁻) [GeV²]", ylab="m²(K⁻π⁺) [GeV²]")
+    iσx = 2, iσy = 1, title = "Dalitz plot",
+    xlab = "m²(pK⁻) [GeV²]", ylab = "m²(K⁻π⁺) [GeV²]")
 
 labels = [(2, "pK⁻"), (1, "K⁻π⁺"), (3, "pπ⁺")]
 let
-    plot(layout=grid(1, 3), size=(1200, 400), bottom_margin=5mm)
+    plot(layout = grid(1, 3), size = (1200, 400), bottom_margin = 5mm)
     n_bins = 100
     @showprogress map(enumerate(labels)) do (sp, (k, part_lab))
         x_ranges = lims(masses(model); k)
-        plot!(range(x_ranges..., n_bins); sp, xlab="m²($part_lab) [GeV²]") do σ
+        plot!(range(x_ranges..., n_bins); sp, xlab = "m²($part_lab) [GeV²]") do σ
             I = Base.Fix1(unpolarized_intensity, model)
             integrand = projection_integrand(I, masses(model), σ; k)
             quadgk(integrand, 0, 1)[1]
@@ -70,22 +70,22 @@ let
 end
 
 # histogram of the invariant mass distributions
-data = map(eachrow(rand(1_000_000, 2))) do y
+data = map(eachrow(rand(100_000, 2))) do y
     y2σs(y, masses(model))
-end |> v -> DataFrame(σs=v)
+end |> v -> DataFrame(σs = v)
 subset!(data, :σs => ByRow(σs -> isphysical(σs, masses(model))))
 @time transform!(data,
     :σs => ByRow(σs -> unpolarized_intensity(model, σs)) => :weights,
     :σs => ByRow(identity) => AsTable)
 
 let
-    plot(layout=grid(1, 3), size=(1200, 400),
-        ylabel="Candidate", bottom_margin=5mm)
+    plot(layout = grid(1, 3), size = (1200, 400),
+        ylabel = "Candidate", bottom_margin = 5mm)
     map(enumerate(labels)) do (sp, (k, part_lab))
         σ = Symbol("σ$k")
         stephist!(data[!, σ]; data.weights, sp,
-            xlabel="m²($part_lab) [GeV]",
-            bins=100, normalize=true)
+            xlabel = "m²($part_lab) [GeV]",
+            bins = 100, normalize = true)
     end
     plot!()
 end
@@ -103,21 +103,21 @@ stacked_weights = let
     _table = leftjoin(
         stack(
             combine(data,
-                Not(:σs, :σ1, :σ2, :σ3) .=> sum; renamecols=false),
-            value_name=:mean,
+                Not(:σs, :σ1, :σ2, :σ3) .=> sum; renamecols = false),
+            value_name = :mean,
         ),
         stack(
             combine(data,
-                Not(:σs, :σ1, :σ2, :σ3) .=> std; renamecols=false),
-            value_name=:std,
-        ); on=:variable)
+                Not(:σs, :σ1, :σ2, :σ3) .=> std; renamecols = false),
+            value_name = :std,
+        ); on = :variable)
     # create value as  m ± σ / sqrt(N)
     transform!(_table, [:mean, :std] => ByRow((m, σ) -> m ± σ / sqrt(size(data, 1))) => :value)
     # normalize the weights
     select!(_table, :variable, :value => (x -> x ./ _table[1, :value] * 100) =>
         :fraction)
     # sort by fraction
-    sort!(_table, [:fraction]; rev=true)
+    sort!(_table, [:fraction]; rev = true)
     subset!(_table, :variable => ByRow(x -> occursin("weights_", x)))
     _table.variable .= map(x -> x[9:end], _table.variable)
     _table
@@ -127,12 +127,12 @@ end
 fractions_ref = let
     _data = readdlm(joinpath(@__DIR__, "..", "data", "fit-fractions-ref.txt"))[:, 1:3]
     DataFrame(
-        variable=_data[:, 1] |> collect,
-        ref_fraction=_data[:, 2] .± _data[:, 3])
+        variable = _data[:, 1] |> collect,
+        ref_fraction = _data[:, 2] .± _data[:, 3])
 end
-fit_fractions = leftjoin(stacked_weights, fractions_ref; on=:variable)
+fit_fractions = leftjoin(stacked_weights, fractions_ref; on = :variable)
 
-print(DataFrames.pretty_table(fit_fractions; compact_printing=false))
+print(DataFrames.pretty_table(fit_fractions; compact_printing = false))
 let
     _, i = findmax(fit_fractions.fraction)
     fit_fractions[:, 2] ./= fit_fractions[i, 2] / 100
@@ -142,17 +142,17 @@ end
 
 let
     most_significant = stacked_weights[2:end, :].variable
-    plot(layout=grid(1, 3), size=(1200, 400), bottom_margin=5mm, yaxis=nothing)
+    plot(layout = grid(1, 3), size = (1200, 400), bottom_margin = 5mm, yaxis = nothing)
     map(enumerate(labels)) do (sp, (k, part_lab))
         σ = Symbol("σ$k")
         stephist!(data[!, σ]; data.weights, sp,
-            xlabel="m²($part_lab) [GeV]",
-            bins=100)
+            xlabel = "m²($part_lab) [GeV]",
+            bins = 100)
         map(most_significant) do branch
             lab = replace(branch, "weights_" => "")
-            stephist!(data[!, σ]; weights=getproperty(data, branch),
+            stephist!(data[!, σ]; weights = getproperty(data, branch),
                 sp, lab,
-                bins=100)
+                bins = 100)
         end
     end
     plot!()
