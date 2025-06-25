@@ -1,11 +1,10 @@
-
 function selectindexmap(isobarname)
     #
     couplingindexmap = Dict(
         r"[L|D].*" => Dict(
             '1' => (1, 0),
             '2' => (-1, 0)),
-        r"K\(892|1430\)" => Dict(
+        r"^K2\(1430\)$|^K\(892\)$|^K\(1410\)$" => Dict(
             '1' => (0, 1),
             '2' => (-2, 1),
             '3' => (2, -1),
@@ -58,5 +57,5 @@ A^{DPD}_{λ₀,λ₁} = (-1)^{½-λ₁} A^{LHCb}_{λ₀,-λ₁}
 """
 amplitudeLHCb2DPD(A) =
     [A[1, 2] -A[1, 1]
-        A[2, 2] -A[2, 1]]
+                          A[2, 2] -A[2, 1]]
 #

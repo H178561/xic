@@ -184,9 +184,10 @@ let
             xlabel = "m²($part_lab) [GeV]",
             bins = 100)
         map(most_significant) do branch
-            lab = replace(branch, "weights_" => "")
-            stephist!(data[!, σ]; weights = getproperty(data, branch),
-                sp, lab,
+            @show branch
+            data_branch_name = "weights_" * branch
+            stephist!(data[!, σ]; weights = getproperty(data, data_branch_name),
+                sp, lab = branch,
                 bins = 100)
         end
     end
