@@ -55,7 +55,7 @@ The relation is
 A^{DPD}_{λ₀,λ₁} = (-1)^{½-λ₁} A^{LHCb}_{λ₀,-λ₁}
 ```
 """
-amplitudeLHCb2DPD(A) =
-    [A[1, 2] -A[1, 1]
-                          A[2, 2] -A[2, 1]]
+amplitudeLHCb2DPD(A) = [
+    A[1, 2] -A[1, 1]
+    A[2, 2] -A[2, 1]]
 #
