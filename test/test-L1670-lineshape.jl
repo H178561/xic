@@ -63,6 +63,40 @@ end
 plot!(m_range, m -> m * abs2(dNR(m^2));
     xlab = "m [GeV]", ylab = "|A|²", label = "Flatte NR L(1670)")
 
+struct Flatte
+    mf::Float64
+    g1::Float64
+    ma1::Float64
+    mb1::Float64
+    g2::Float64
+    ma2::Float64
+    mb2::Float64
+end
+function (d::Flatte)(σ::Float64)
+    iϵ = 1e-6im
+    m = sqrt(σ)
+    D = m^2 - d.mf^2 + 1im * d.mf * (d.g1 * k(m + iϵ, d.ma1, d.mb1) + d.g2 * k(m + iϵ, d.ma2, d.mb2))
+    return 2d.mf / D
+end
+
+dF = let
+    m = 1.6744
+    Γ1 = 0.0272
+    ma1, mb1 = 0.938272046, 0.493677
+    k1 = k(m, ma1, mb1)
+    g1 = Γ1 / k1
+    @show g1
+    #
+    Flatte(m,
+        g1, ma1, mb1,
+        0.258, 1.115683, 0.547862)
+end
+
+
+plot!(m_range, m -> m * abs2(dF(m^2));
+    xlab = "m [GeV]", ylab = "|A|²", label = "Rel. Flatte L(1670)")
+
+
 struct BreitWigner
     m::Float64
     Γ::Float64
