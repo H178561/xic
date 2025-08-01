@@ -172,6 +172,10 @@ let
     fit_fractions
 end
 
+
+getproperty.(fit_fractions.fraction, :val) ./ fit_fractions.ref_fraction
+
+
 # -------------------------------------------------------------
 # Plot projections for most significant amplitude components
 # -------------------------------------------------------------
