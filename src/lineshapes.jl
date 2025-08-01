@@ -146,7 +146,7 @@ function (d::L1670Flatte)(σ::Float64)
     m = sqrt(σ)
     # the line does not look natural, but it's intentional
     D = mf - m - 0.5im * (Γ0 + g * k(m + iϵ, ma2, mb2))
-    return 1 / D
+    return -1 / D # in the python code, D is implemented with the minus sign
 end
 
 
