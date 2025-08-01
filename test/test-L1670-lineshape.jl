@@ -107,25 +107,3 @@ dBW = BreitWigner(1.6744, 0.0272)
 
 plot!(m_range, m -> m * abs2(dBW(m^2));
     xlab = "m [GeV]", ylab = "|A|²", label = "Breit Wigner L(1670)")
-
-
-# TFCode1670
-struct TFCode1670
-    mf::Float64
-    g1::Float64
-    g2::Float64
-    ma2::Float64
-    mb2::Float64
-end
-function (d::TFCode1670)(σ::Float64)
-    iϵ = 1e-6im
-    m = sqrt(σ)
-    D = d.mf^2 - m^2 + 1im * (d.g1 + d.g2^2 * 2k(m + iϵ, d.ma2, d.mb2) / m)
-    return 1 / D
-end
-
-dCode = TFCode1670(1.6744, 0.0272, 0.258, 1.115683, 0.547862)
-
-m_range = range(1.55, 1.8, length = 1000)
-plot!(m_range, m -> m * abs2(dCode(m^2));
-    xlab = "m [GeV]", ylab = "|A|²", label = "In Code")
