@@ -20,6 +20,7 @@ export Lineshape
 export BreitWignerMinL
 export BuggBreitWignerMinL
 export Flatte1405, Flatte1670
+export L1670Flatte
 export updatepars
 include("lineshapes.jl")
 

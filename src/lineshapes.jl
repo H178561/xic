@@ -135,7 +135,6 @@ end
 end
 TFCodeBuggy1670(pars::T; kw...) where {T} = TFCodeBuggy1670(; pars, kw...)
 
-k(m, ma, mb) = breakup(m^2, ma^2, mb^2)
 function (d::TFCodeBuggy1670)(σ::Float64)
     mf, _ = d.pars
     # 

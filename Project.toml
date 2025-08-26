@@ -10,6 +10,7 @@ Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 ThreeBodyDecays = "e6563dab-9ca1-5843-bde3-2ccf38d63843"
+ThreeBodyDecaysIO = "418e7ecf-680e-4cb5-ad61-5e2f006aefac"
 YAML = "ddb6d928-2868-570f-bddf-ab3f9cf99eb6"
 
 [compat]
@@ -27,9 +28,9 @@ PlutoUI = "0.7.54"
 RecipesBase = "1.3.4"
 StaticArrays = "1.7.0"
 ThreadsX = "0.1.11"
-YAML = "0.4.9"
 ThreeBodyDecays = "0.11, >=0.12.1"
-
+ThreeBodyDecaysIO = "0.7.0"
+YAML = "0.4.9"
 
 [extras]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
@@ -45,16 +46,5 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 ThreadsX = "ac1d9e8a-700a-412c-b207-f0111f4b6c0d"
 
 [targets]
-interactive = [
-    "BenchmarkTools",
-    "Corpuscles",
-    "ThreadsX",
-    "Plots",
-    "Pluto",
-    "PlutoSliderServer",
-    "PlutoUI",
-    "LaTeXStrings",
-    "Measurements",
-    "DataFrames",
-]
+interactive = ["BenchmarkTools", "Corpuscles", "ThreadsX", "Plots", "Pluto", "PlutoSliderServer", "PlutoUI", "LaTeXStrings", "Measurements", "DataFrames"]
 test = ["Test"]
