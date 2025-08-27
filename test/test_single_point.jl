@@ -72,7 +72,7 @@ println("="^50)
         end
     end
     
-    @test json_file !== nothing "No JSON model file found"
+    @test json_file !== nothing
     
     # Read and parse JSON
     json_content = open(json_file) do io
