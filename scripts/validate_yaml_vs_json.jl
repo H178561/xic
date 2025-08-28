@@ -61,16 +61,16 @@ println("Loading JSON model...")
 json_files = [
     joinpath(@__DIR__, "..", "data", "xic2pKpi-model_new.json"),
     joinpath(@__DIR__, "..", "data", "xic2pKpi-model.json"),
-    joinpath(@__DIR__, "..", "data", "xic2pKpi_model.json")
+    joinpath(@__DIR__, "/home/hvdsmagt/Julia/xic2pkpi-amplitude", "data", "xic2pKpi_model.json")
 ]
+json_file = joinpath("/home/hvdsmagt/Julia/xic2pkpi-amplitude/data/xic2pKpi-model_new.json")
 
-json_file = nothing
-for file in json_files
-    if isfile(file)
-        json_file = file
-        break
-    end
-end
+#for file in json_files
+#    if isfile(file)
+#        json_file = file
+#        break
+#    end
+#end
 
 if json_file === nothing
     error("No JSON model file found. Please run xic_yaml_to_json_new.jl first.")

@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
-# Script to convert XiC to pKπ model from YAML to JSON format
-# Following the pattern from test_write_read_model.jl
+# Working script to convert XiC to pKπ model from YAML to JSON format
+# Fixed to handle all actual lineshape types
 # -------------------------------------------------------------
 using Lc2ppiKSemileptonicModelLHCb
 using Lc2ppiKSemileptonicModelLHCb.ThreeBodyDecays
@@ -13,6 +13,7 @@ using YAML
 # -------------------------------------------------------------
 # Load model and particle definitions from YAML files
 # -------------------------------------------------------------
+println("Loading YAML files...")
 begin
     particledict = YAML.load_file(joinpath(@__DIR__, "..", "data", "xic-particle-definitions.yaml"))
     modelparameters = YAML.load_file(joinpath(@__DIR__, "..", "data", "xic-model-definitions.yaml"))
@@ -23,8 +24,12 @@ defaultparameters = modelparameters["Default amplitude model"]
 # -------------------------------------------------------------
 # Parse model dictionaries and convert to standard convention
 # -------------------------------------------------------------
+println("Parsing model dictionaries...")
 (; chains, couplings, isobarnames) =
     parse_model_dictionaries(defaultparameters; particledict)
+
+println("Found $(length(chains)) decay chains")
+println("Resonances: $(join(isobarnames, ", "))")
 
 # -------------------------------------------------------------
 # Set up the amplitude model with particle numbering
@@ -32,13 +37,13 @@ defaultparameters = modelparameters["Default amplitude model"]
 # -------------------------------------------------------------
 model = Lc2ppiKModel(; chains, couplings, isobarnames)
 
+println("Model created successfully")
 println("Model type: $(typeof(model))")
 println("Number of decay chains: $(length(model.chains))")
 
 # -------------------------------------------------------------
-# Import the lineshape types we need to handle
-using Lc2ppiKSemileptonicModelLHCb.HadronicLineshapes: BreitWignerMinL, BuggBreitWignerMinL, Flatte1405, L1670Flatte
-
+# Custom lineshape parser that handles all available lineshape types
+# -------------------------------------------------------------
 function xic_lineshape_parser(Xlineshape)
     appendix = Dict()
     
@@ -119,7 +124,8 @@ function xic_lineshape_parser(Xlineshape)
         scattering_key = "$(lineshape_name)_L1670Flatte"
         m, Γ = Xlineshape.pars
         
-        # L1670 special case - treat as modified BreitWigner
+        # L1670 special case - treat as modified BreitWigner for now
+        # TODO: Implement proper L1670Flatte in ThreeBodyDecaysIO
         lineshape_dict = Dict{Symbol, Any}(
             :name => scattering_key,
             :type => "BreitWigner",
@@ -196,7 +202,7 @@ dict = add_hs3_fields(decay_description, appendix, "xic_default_model")
 # -------------------------------------------------------------
 # Write JSON file
 # -------------------------------------------------------------
-output_file = joinpath(@__DIR__, "..", "data", "xic2pKpi-model_new.json")
+output_file = joinpath(@__DIR__, "..", "data", "xic2pKpi-model_working.json")
 println("Writing JSON model to: $output_file")
 
 open(output_file, "w") do io
@@ -211,6 +217,20 @@ end
 println("  Available keys in dict: $(keys(dict))")
 if haskey(dict, :functions)
     println("  Number of functions: $(length(dict[:functions]))")
+    
+    # Count different types of functions
+    function_types = Dict{String, Int}()
+    for func in dict[:functions]
+        if haskey(func, "type")
+            func_type = func["type"]
+            function_types[func_type] = get(function_types, func_type, 0) + 1
+        end
+    end
+    
+    println("  Function types:")
+    for (ftype, count) in function_types
+        println("    $ftype: $count")
+    end
 else
     println("  No 'functions' key found")
 end
@@ -243,6 +263,25 @@ end
 println("✓ JSON file validation passed")
 println("  - Contains $(length(chains)) decay chains")
 println("  - Contains $(length(json_content["functions"])) function definitions")
+
+# List all the resonances found
+println("\nResonances found in conversion:")
+resonance_names = Set{String}()
+for func in json_content["functions"]
+    if haskey(func, "name") && !contains(func["name"], "BlattWeisskopf")
+        # Extract resonance name from function name
+        func_name = func["name"]
+        if contains(func_name, "_")
+            resonance_name = split(func_name, "_")[1]
+            push!(resonance_names, resonance_name)
+        end
+    end
+end
+
+println("  Unique resonances: $(length(resonance_names))")
+for res_name in sort(collect(resonance_names))
+    println("    - $res_name")
+end
 
 # Test parsing back to model (following test pattern)
 println("\nTesting model reconstruction...")

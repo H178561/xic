@@ -21,6 +21,7 @@ println("="^60)
 # -------------------------------------------------------------
 println("Test 1: JSON Model Reconstruction")
 println("-"^40)
+println(@__DIR__)
 
 # Find JSON file
 json_files = [
