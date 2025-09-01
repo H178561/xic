@@ -33,6 +33,15 @@ end
 defaultparameters = modelparameters["Default amplitude model"]
 
 
+function F²(l, p, p0, d)
+    pR = p * d
+    p0R = p0 * d
+    l == 0 && return 1.0
+    l == 1 && return (1 + p0R^2) / (1 + pR^2)
+    l == 2 && return (9 + 3p0R^2 + p0R^4) / (9 + 3pR^2 + pR^4)
+    l != 3 && error("l==$(l)>2 cannot be")
+    return (225 + 45 * (p0R^2) + 6 * (p0R^2)^2 + (p0R^2)^3) / (225 + 45 * (pR^2) + 6 * (pR^2)^2 + (pR^2)^3)
+end
 
 # -------------------------------------------------------------
 # Parse model dictionaries and convert to standard convention
@@ -87,10 +96,15 @@ function convert_breitWignerMinL_to_shapes_format(bw_minl)
         gsq_eff = m^2 * Γ₀ / (2*p0*FF0^2)
                 print(Γ₀, " -> ", gsq_eff, "\n", p0, ", FF", FF(p0))
 
+        p0 = breakup(m^2, m1^2, m2^2)
+        F2 = F²(l, p0, p0, d)
+        new_width = Γ₀ * F2
+        println(Γ₀, " -> ", new_width, "\n", p0, ", F2", F2)
+
         return Dict{String, Any}(
             "type" => "BreitWigner",
             "mass" => m,
-            "width" => gsq_eff,  # ✅ Verwende die berechnete effektive Breite!
+            "width" => new_width,  # ✅ Verwende die berechnete effektive Breite!
             "ma" => m1,
             "mb" => m2,
             "l" => l,
@@ -286,8 +300,9 @@ function xic_lineshape_parser(Xlineshape)
     # Add Blatt-Weisskopf form factors based on angular momentum
     l_val = get(lineshape_dict, "l", 0)
     if l_val > 0
+        l_val2 = 0
         ff_resonance = "BlattWeisskopf_resonance_l$(l_val)"
-        ff_decay = "BlattWeisskopf_b_decay_l$(l_val)"
+        ff_decay = "BlattWeisskopf_b_decay_l$(l_val2)"
         
         if !haskey(appendix, ff_resonance)
             appendix[ff_resonance] = Dict{String, Any}(
@@ -303,11 +318,13 @@ function xic_lineshape_parser(Xlineshape)
                 "name" => ff_decay,
                 "type" => "BlattWeisskopf",
                 "radius" => 5.0,
-                "l" => l_val
+                "l" => l_val2
             )
         end
         
         return (; scattering=scattering_key, FF_production=ff_decay, FF_decay=ff_resonance), appendix
+        #return (; scattering=scattering_key, FF_production=ff_resonance, FF_decay=ff_decay), appendix
+
     else
         return (; scattering=scattering_key, FF_production="", FF_decay=""), appendix
     end
@@ -385,7 +402,8 @@ if haskey(decay_description, :chains)
                                     end
                                 end
                             end
-                            vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_b_decay_l$(l_val)" : ""
+                            vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_b_decay_l$(0)" : ""
+                            #vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_resonance_l$(l_val)" : ""
                         end
                     elseif vertex[:type] == "parity"
                         # Add form factor for parity vertices (resonance)
@@ -401,6 +419,7 @@ if haskey(decay_description, :chains)
                                 end
                             end
                             vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_resonance_l$(l_val)" : ""
+                            #vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_b_decay_l$(0)" : ""
                         end
                     end
                 end

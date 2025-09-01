@@ -253,7 +253,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -304,7 +304,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -355,7 +355,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -406,7 +406,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -559,7 +559,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -610,7 +610,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -661,7 +661,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -712,7 +712,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -865,7 +865,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -916,7 +916,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -967,7 +967,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l3"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1018,7 +1018,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l3"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1069,7 +1069,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1120,7 +1120,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1171,7 +1171,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1222,7 +1222,7 @@
                                     ],
                                     2
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1375,7 +1375,7 @@
                                     ],
                                     3
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1426,7 +1426,7 @@
                                     ],
                                     3
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1477,7 +1477,7 @@
                                     ],
                                     3
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1528,7 +1528,7 @@
                                     ],
                                     3
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1681,7 +1681,7 @@
                                     ],
                                     3
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1732,7 +1732,7 @@
                                     ],
                                     3
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1885,7 +1885,7 @@
                                     ],
                                     1
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1936,7 +1936,7 @@
                                     ],
                                     1
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -1987,7 +1987,7 @@
                                     ],
                                     1
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -2038,7 +2038,7 @@
                                     ],
                                     1
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l1"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -2089,7 +2089,7 @@
                                     ],
                                     1
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -2140,7 +2140,7 @@
                                     ],
                                     1
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -2242,7 +2242,7 @@
                                     ],
                                     1
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -2293,7 +2293,7 @@
                                     ],
                                     1
                                 ],
-                                "formfactor": "BlattWeisskopf_b_decay_l2"
+                                "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
@@ -2427,13 +2427,13 @@
                 "value": "0.0 + 0.0i"
             },
             {
-                "point": "validation_point_m31sq",
-                "distribution": "L(1520)_BW",
+                "point": "validation_point_m12sq",
+                "distribution": "D(1232)_BW",
                 "value": "0.0 + 0.0i"
             },
             {
-                "point": "validation_point_m12sq",
-                "distribution": "D(1232)_BW",
+                "point": "validation_point_m31sq",
+                "distribution": "L(1520)_BW",
                 "value": "0.0 + 0.0i"
             },
             {
@@ -2490,7 +2490,7 @@
             "x": "m_23_sq",
             "ma": 0.13957018,
             "mass": 1.4324000000000001,
-            "width": 2.924993065144208,
+            "width": 0.109,
             "l": 2,
             "type": "BreitWigner",
             "d": 1.5
@@ -2523,7 +2523,7 @@
             "x": "m_31_sq",
             "ma": 0.49367700000000003,
             "mass": 1.6,
-            "width": 3.569944832772928,
+            "width": 0.2,
             "l": 1,
             "type": "BreitWigner",
             "d": 1.5
@@ -2534,16 +2534,10 @@
             "x": "m_12_sq",
             "ma": 0.938272046,
             "mass": 1.665,
-            "width": 14.815886872059204,
+            "width": 0.25,
             "l": 2,
             "type": "BreitWigner",
             "d": 1.5
-        },
-        {
-            "name": "BlattWeisskopf_b_decay_l2",
-            "radius": 5.0,
-            "l": 2,
-            "type": "BlattWeisskopf"
         },
         {
             "name": "L(1890)_BW",
@@ -2551,7 +2545,7 @@
             "x": "m_31_sq",
             "ma": 0.49367700000000003,
             "mass": 1.89,
-            "width": 0.7997171820061234,
+            "width": 0.12,
             "l": 1,
             "type": "BreitWigner",
             "d": 1.5
@@ -2591,6 +2585,12 @@
             "d": 1.5
         },
         {
+            "name": "BlattWeisskopf_b_decay_l0",
+            "radius": 5.0,
+            "l": 0,
+            "type": "BlattWeisskopf"
+        },
+        {
             "name": "L(1670)_Flatte",
             "x": "m_31_sq",
             "mass": 1.6744,
@@ -2618,24 +2618,7 @@
             "x": "m_31_sq",
             "ma": 0.49367700000000003,
             "mass": 1.69,
-            "width": 13.552046340515101,
-            "l": 2,
-            "type": "BreitWigner",
-            "d": 1.5
-        },
-        {
-            "name": "BlattWeisskopf_b_decay_l1",
-            "radius": 5.0,
-            "l": 1,
-            "type": "BlattWeisskopf"
-        },
-        {
-            "name": "L(1520)_BW",
-            "mb": 0.938272046,
-            "x": "m_31_sq",
-            "ma": 0.49367700000000003,
-            "mass": 1.518467,
-            "width": 39.60425118834131,
+            "width": 0.07,
             "l": 2,
             "type": "BreitWigner",
             "d": 1.5
@@ -2646,8 +2629,19 @@
             "x": "m_12_sq",
             "ma": 0.938272046,
             "mass": 1.232,
-            "width": 3.75711115744306,
+            "width": 0.117,
             "l": 1,
+            "type": "BreitWigner",
+            "d": 1.5
+        },
+        {
+            "name": "L(1520)_BW",
+            "mb": 0.938272046,
+            "x": "m_31_sq",
+            "ma": 0.49367700000000003,
+            "mass": 1.518467,
+            "width": 0.015195,
+            "l": 2,
             "type": "BreitWigner",
             "d": 1.5
         },
@@ -2657,7 +2651,7 @@
             "x": "m_31_sq",
             "ma": 0.49367700000000003,
             "mass": 1.713,
-            "width": 1.8363192186071233,
+            "width": 0.18,
             "l": 1,
             "type": "BreitWigner",
             "d": 1.5
@@ -2679,7 +2673,7 @@
             "x": "m_12_sq",
             "ma": 0.938272046,
             "mass": 1.57,
-            "width": 1.7810530292733107,
+            "width": 0.25,
             "l": 1,
             "type": "BreitWigner",
             "d": 1.5
@@ -2690,7 +2684,7 @@
             "x": "m_23_sq",
             "ma": 0.13957018,
             "mass": 0.8955,
-            "width": 0.40803097993894116,
+            "width": 0.047299999999999995,
             "l": 1,
             "type": "BreitWigner",
             "d": 1.5
@@ -2701,7 +2695,7 @@
             "x": "m_31_sq",
             "ma": 0.49367700000000003,
             "mass": 1.79,
-            "width": 0.8951297126982654,
+            "width": 0.11,
             "l": 1,
             "type": "BreitWigner",
             "d": 1.5
@@ -2712,7 +2706,7 @@
             "x": "m_31_sq",
             "ma": 0.49367700000000003,
             "mass": 1.825,
-            "width": 6.8415204263388985,
+            "width": 0.09,
             "l": 2,
             "type": "BreitWigner",
             "d": 1.5
@@ -2733,16 +2727,10 @@
             "x": "m_31_sq",
             "ma": 0.49367700000000003,
             "mass": 1.82,
-            "width": 211.06114152388582,
+            "width": 0.08,
             "l": 3,
             "type": "BreitWigner",
             "d": 1.5
-        },
-        {
-            "name": "BlattWeisskopf_b_decay_l3",
-            "radius": 5.0,
-            "l": 3,
-            "type": "BlattWeisskopf"
         },
         {
             "name": "BlattWeisskopf_resonance_l3",

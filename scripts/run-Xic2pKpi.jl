@@ -38,12 +38,18 @@ model = Lc2ppiKModel(; chains, couplings, isobarnames)
     σ1 = 0.7980703453578917,
     σ2 = 3.6486261122281745)
 
+σ1 = 1.4  # GeV²
+σ2 = 3.2  # GeV²
+σs = Invariants(ms; σ1, σ2)
+
 # -------------------------------------------------------------
 # Evaluate intensity and amplitude at the random point
 # -------------------------------------------------------------
-_I = unpolarized_intensity(model, σs0)
-_A = amplitude(model, σs0, [1, 0, 0, 1])  # pars: model, mandelstam variables, helicity values
+_I = unpolarized_intensity(model, σs)
+_A = amplitude(model, σs)  # pars: model, mandelstam variables, helicity values
 
+print(_I, "\n")
+print(_A, "\n")
 # -------------------------------------------------------------
 # Basic tests to check evaluation
 # -------------------------------------------------------------
@@ -201,26 +207,5 @@ end
 # Save the final projections plot
 # -------------------------------------------------------------
 #savefig(joinpath(@__DIR__, "..", "plots", "xic2pKpi-projections.png"))
-
-
-# Einzelne Resonanz nach Name filtern
-lambda_1520_model = model[model.names .== "L(1520)"]
-k892_model = model[model.names .== "D(1232)"]
-
-# Testen mit Mandelstam-Variablen
-σs0 = Invariants(model.chains[1].tbs.ms; σ1 = 3.2, σ2 = 1.4)
-
-# Amplitude für einzelne Resonanz berechnen
-amplitude_L1520 = amplitude(lambda_1520_model, σs0, [1, 0, 0, 1])
-intensity_L1520 = unpolarized_intensity(lambda_1520_model, σs0)
-
-print("Amplitude L(1520): $amplitude_L1520\n")
-print("Intensity L(1520): $intensity_L1520\n")
-
-amplitude_D1232 = amplitude(k892_model, σs0, [1, 0, 0, 1])
-intensity_D1232 = unpolarized_intensity(k892_model, σs0)
-
-print("Amplitude D(1232): $amplitude_D1232\n")
-print("Intensity D(1232): $intensity_D1232\n")
 
 
