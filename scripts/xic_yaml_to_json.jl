@@ -17,6 +17,10 @@ using ThreeBodyDecaysIO.Parameters
 using ThreeBodyDecaysIO.JSON
 using YAML
 using Statistics
+using HadronicLineshapes
+
+using ThreeBodyDecaysIO.ThreeBodyDecays: breakup
+
 
 # -------------------------------------------------------------
 # Load model and particle definitions from YAML files
@@ -43,6 +47,60 @@ defaultparameters = modelparameters["Default amplitude model"]
 model = Lc2ppiKModel(; chains, couplings, isobarnames)
 
 
+# ... existing imports ...
+
+# Konvertierungsfunktionen hinzufügen
+function convert_breitWignerMinL_to_shapes_format(bw_minl)
+    @unpack pars, l, m1, m2, minL = bw_minl
+    m, Γ₀ = pars
+    
+    if l == 0
+        # Für l=0: einfache BreitWigner
+        return Dict{String, Any}(
+            "type" => "BreitWigner",
+            "mass" => m,
+            "width" => Γ₀,
+            "ma" => m1,
+            "mb" => m2,
+            "l" => l,
+            "d" => 1.5
+        )
+    else
+        # Für l>0: MultichannelBreitWigner mit Form-Faktoren
+        d = 1.5  # Blatt-Weisskopf Parameter
+        d2 = 5.0
+
+        # Berechne Impuls am Resonanzpol
+        p0 = breakup(m, m1, m2)
+        
+        # Berechne effektive Kopplungskonstante
+        FF = HadronicLineshapes.BlattWeisskopf{l}(d)
+        FF2 = HadronicLineshapes.BlattWeisskopf{minL}(d2)
+        ff3 = HadronicLineshapes.BlattWeisskopf{l}(d2)  # Für b-decay immer l=0
+        print(FF(p0), ", ", FF2(p0), ", ", ff3(p0), "\n")
+        gsq_eff = m * Γ₀ / (2 * p0) * m / FF(p0)^2
+        gsq_eff = Γ₀ / FF(p0)^2
+        gsq_eff = Γ₀ * m / (2 * p0)
+
+        FF0 = FF(p0)
+
+        gsq_eff = m^2 * Γ₀ / (2*p0*FF0^2)
+                print(Γ₀, " -> ", gsq_eff, "\n", p0, ", FF", FF(p0))
+
+        return Dict{String, Any}(
+            "type" => "BreitWigner",
+            "mass" => m,
+            "width" => gsq_eff,  # ✅ Verwende die berechnete effektive Breite!
+            "ma" => m1,
+            "mb" => m2,
+            "l" => l,
+            "d" => d
+                )
+            
+        
+    end
+end
+
 
 # -------------------------------------------------------------
 # Custom lineshape parser for XiC model to match Lc2pkpi format
@@ -58,31 +116,32 @@ function xic_lineshape_parser(Xlineshape)
     if lineshape_type <: BreitWignerMinL
         print(Xlineshape)
         scattering_key = "$(lineshape_name)_BW"
-        m, Γ = Xlineshape.pars
         
-        # Determine correct invariant mass variable based on decay chain
-        # For XiC: 0->p(1), pi(2), K(3), so [3,1] = pK, [1,2] = p-pi, [2,3] = pi-K
+        # Konvertiere zu shapes.jl Format
+        converted_params = convert_breitWignerMinL_to_shapes_format(Xlineshape)
+        k = 
+        
+        # Bestimme x-Variable
         x_var = if contains(lineshape_name, "L") || contains(lineshape_name, "Λ")
-            "m_31_sq"  # Lambda resonances in pK system
+            "m_31_sq"
         elseif contains(lineshape_name, "D") || contains(lineshape_name, "Δ")
-            "m_12_sq"  # Delta resonances in p-pi system  
+            "m_12_sq"
         elseif contains(lineshape_name, "K")
-            "m_23_sq"  # Kaon resonances in pi-K system
+            "m_23_sq"
         else
-            "m_31_sq"  # Default to pK system
+            "m_31_sq"
         end
         
+        # Erstelle Lineshape Dictionary
         lineshape_dict = Dict{String, Any}(
             "name" => scattering_key,
-            "type" => "BreitWigner",
-            "x" => x_var,
-            "mass" => m,
-            "width" => Γ,
-            "l" => Xlineshape.l,
-            "ma" => Xlineshape.m1,
-            "mb" => Xlineshape.m2,
-            "d" => 1.5
+            "x" => x_var
         )
+        
+        # Füge konvertierte Parameter hinzu
+        merge!(lineshape_dict, converted_params)
+        
+        println("Converted $(lineshape_name) (l=$(Xlineshape.l)) to $(converted_params["type"])")
         
     elseif lineshape_type <: BuggBreitWignerMinL
         scattering_key = "$(lineshape_name)_BuggBW"

@@ -1,14 +1,6 @@
 # -------------------------------------------------------------
 # Script to convert XiC to pKπ model from YAML to JSON format
 # -------------------------------------------------------------
-
-# Add this at the top of xic_yaml_to_json.jl (before any other code)
-import Pkg
-Pkg.activate(dirname(@__DIR__))  # Activate parent directory as project
-Pkg.instantiate()  # Install dependencies if needed
-
-
-# ... rest of your imports
 using Lc2ppiKSemileptonicModelLHCb
 using Lc2ppiKSemileptonicModelLHCb.ThreeBodyDecays
 using ThreeBodyDecaysIO
@@ -16,7 +8,6 @@ using ThreeBodyDecaysIO.ThreeBodyDecays
 using ThreeBodyDecaysIO.Parameters
 using ThreeBodyDecaysIO.JSON
 using YAML
-using Statistics
 
 # -------------------------------------------------------------
 # Load model and particle definitions from YAML files
@@ -27,8 +18,6 @@ begin
 end
 
 defaultparameters = modelparameters["Default amplitude model"]
-
-
 
 # -------------------------------------------------------------
 # Parse model dictionaries and convert to standard convention
@@ -42,53 +31,6 @@ defaultparameters = modelparameters["Default amplitude model"]
 # -------------------------------------------------------------
 model = Lc2ppiKModel(; chains, couplings, isobarnames)
 
-
-# ... existing imports ...
-
-# Konvertierungsfunktionen hinzufügen
-function convert_breitWignerMinL_to_shapes_format(bw_minl)
-    @unpack pars, l, m1, m2 = bw_minl
-    m, Γ₀ = pars
-    
-    if l == 0
-        # Für l=0: einfache BreitWigner
-        return Dict{String, Any}(
-            "type" => "BreitWigner",
-            "mass" => m,
-            "width" => Γ₀,
-            "ma" => m1,
-            "mb" => m2,
-            "l" => l,
-            "d" => 1.5
-        )
-    else
-        # Für l>0: MultichannelBreitWigner mit Form-Faktoren
-        d = 1.5  # Blatt-Weisskopf Parameter
-        
-        # Berechne Impuls am Resonanzpol
-        p0 = breakup(m, m1, m2)
-        
-        # Berechne effektive Kopplungskonstante
-        FF = BlattWeisskopf{l}(d)
-        gsq_eff = m * Γ₀ / (2 * p0) * m / FF(p0)^2
-        
-        return Dict{String, Any}(
-            "type" => "MultichannelBreitWigner",
-            "mass" => m,
-            "channels" => [
-                Dict{String, Any}(
-                    "gsq" => gsq_eff,
-                    "ma" => m1,
-                    "mb" => m2,
-                    "l" => l,
-                    "d" => d
-                )
-            ]
-        )
-    end
-end
-
-
 # -------------------------------------------------------------
 # Custom lineshape parser for XiC model to match Lc2pkpi format
 # -------------------------------------------------------------
@@ -101,33 +43,32 @@ function xic_lineshape_parser(Xlineshape)
     
     # Create proper function name based on lineshape type
     if lineshape_type <: BreitWignerMinL
-        print(Xlineshape)
         scattering_key = "$(lineshape_name)_BW"
+        m, Γ = Xlineshape.pars
         
-        # Konvertiere zu shapes.jl Format
-        converted_params = convert_breitWignerMinL_to_shapes_format(Xlineshape)
-        
-        # Bestimme x-Variable
+        # Determine correct invariant mass variable based on decay chain
+        # For XiC: 0->p(1), pi(2), K(3), so [3,1] = pK, [1,2] = p-pi, [2,3] = pi-K
         x_var = if contains(lineshape_name, "L") || contains(lineshape_name, "Λ")
-            "m_31_sq"
+            "m_31_sq"  # Lambda resonances in pK system
         elseif contains(lineshape_name, "D") || contains(lineshape_name, "Δ")
-            "m_12_sq"
+            "m_12_sq"  # Delta resonances in p-pi system  
         elseif contains(lineshape_name, "K")
-            "m_23_sq"
+            "m_23_sq"  # Kaon resonances in pi-K system
         else
-            "m_31_sq"
+            "m_31_sq"  # Default to pK system
         end
         
-        # Erstelle Lineshape Dictionary
         lineshape_dict = Dict{String, Any}(
             "name" => scattering_key,
-            "x" => x_var
+            "type" => "BreitWigner",
+            "x" => x_var,
+            "mass" => m,
+            "width" => Γ,
+            "l" => Xlineshape.l,
+            "ma" => Xlineshape.m1,
+            "mb" => Xlineshape.m2,
+            "d" => 1.5
         )
-        
-        # Füge konvertierte Parameter hinzu
-        merge!(lineshape_dict, converted_params)
-        
-        println("Converted $(lineshape_name) (l=$(Xlineshape.l)) to $(converted_params["type"])")
         
     elseif lineshape_type <: BuggBreitWignerMinL
         scattering_key = "$(lineshape_name)_BuggBW"
@@ -136,65 +77,12 @@ function xic_lineshape_parser(Xlineshape)
         lineshape_dict = Dict{String, Any}(
             "name" => scattering_key,
             "type" => "generic_function",
-            "expression" => "1/($(m)^2 - σ - i * $(m) * (σ - $(Xlineshape.m1^2 + Xlineshape.m2^2)) / ($(m)^2 - $(Xlineshape.m1^2 + Xlineshape.m2^2)) * $(Γ) * exp($(-γ) * σ))"
+            "expression" => "1/($(m)^2 - σ - i * $(m) * (σ - $(Xlineshape.m1^2 + Xlineshape.m2^2)) / ($(m)^2 - $(Xlineshape.m1^2 + Xlineshape.m2^2)) * $(Γ) * exp(-$(γ) * σ))"
         )
         
     elseif lineshape_type <: Flatte1405
         scattering_key = "$(lineshape_name)_Flatte"
         m, Γ = Xlineshape.pars
-        print(Xlineshape)
-
-        # Physical constants
-        mπ = 0.13957018  # Pion mass
-        mΣ = 1.18937     # Sigma mass
-        
-        # Calculate gsq by fitting to the actual lineshape behavior
-        function calculate_flatte_couplings(lineshape, m_res, width_total)
-            # Test at multiple points to determine coupling ratio
-            test_points = [m_res^2 * 0.9, m_res^2, m_res^2 * 1.1]
-            
-            # Calculate phase space factors
-            phase_space_ratios = []
-            for s in test_points
-                if s > (lineshape.m1 + lineshape.m2)^2 && s > (mπ + mΣ)^2
-                    p1 = breakup(s, lineshape.m1^2, lineshape.m2^2)
-                    p2 = breakup(s, mπ^2, mΣ^2)
-                    rho1 = (2 * p1 / sqrt(s)) * (m_res / sqrt(s))
-                    rho2 = (2 * p2 / sqrt(s)) * (m_res / sqrt(s))
-                    push!(phase_space_ratios, rho1 / (rho1 + rho2))
-                end
-            end
-            
-            # Use average ratio or physical branching ratio
-            if !isempty(phase_space_ratios)
-                avg_ratio = mean(phase_space_ratios)
-            else
-                avg_ratio = 0.6  # Default: 60% pK, 40% Σπ
-            end
-            
-            # Calculate reference phase space at resonance
-            s_ref = m_res^2
-            p1_ref = breakup(s_ref, lineshape.m1^2, lineshape.m2^2)
-            p2_ref = breakup(s_ref, mπ^2, mΣ^2)
-            rho1_ref = (2 * p1_ref / sqrt(s_ref)) * (m_res / sqrt(s_ref))
-            rho2_ref = (2 * p2_ref / sqrt(s_ref)) * (m_res / sqrt(s_ref))
-            
-            # Distribute total width according to ratio
-            gsq1 = (width_total * avg_ratio) / rho1_ref
-            gsq2 = (width_total * (1 - avg_ratio)) / rho2_ref
-            
-            return gsq1, gsq2, avg_ratio
-        end
-        
-        gsq1, gsq2, ratio = calculate_flatte_couplings(Xlineshape, m, Γ)
-        
-        println("Calculated gsq values for $(lineshape_name):")
-        println("  Total width: $Γ GeV")
-        println("  Channel ratio (pK:Σπ): $(ratio):$(1-ratio)")
-        println("  Channel 1 (pK): gsq = $gsq1")
-        println("  Channel 2 (Σπ): gsq = $gsq2")
-        
-        
         
         lineshape_dict = Dict{String, Any}(
             "name" => scattering_key,
@@ -203,16 +91,14 @@ function xic_lineshape_parser(Xlineshape)
             "mass" => m,
             "channels" => [
                 Dict{String, Any}(
-                    "gsq" => 0.32875,  # Match Lc2pkpi values
-                    #"gsq" => gsq1,
+                    "gsq" => 0.23395150538434703,  # Match Lc2pkpi values
                     "ma" => Xlineshape.m1,
                     "mb" => Xlineshape.m2,
                     "l" => Xlineshape.l,
                     "d" => 0
                 ),
                 Dict{String, Any}(
-                    "gsq" => 0.32875,
-                    #"gsq" => gsq2,
+                    "gsq" => 0.23395150538434703,
                     "ma" => 1.18937,  # Sigma mass
                     "mb" => 0.13957018,  # Pion mass
                     "l" => Xlineshape.l,
@@ -222,31 +108,19 @@ function xic_lineshape_parser(Xlineshape)
         )
         
     elseif lineshape_type <: L1670Flatte
-        print(Xlineshape)
-        scattering_key = "$(lineshape_name)_Flatte"
+        scattering_key = "$(lineshape_name)_BW"
         m, Γ = Xlineshape.pars
         
         lineshape_dict = Dict{String, Any}(
             "name" => scattering_key,
-            "type" => "MultichannelBreitWigner",
+            "type" => "BreitWigner",
             "x" => "m_31_sq",
             "mass" => m,
-            "channels" => [
-                Dict{String, Any}(
-                    "gsq" => 0.258,  # Match Lc2pkpi values
-                    "ma" => Xlineshape.m1,
-                    "mb" => Xlineshape.m2,
-                    "l" => Xlineshape.l,
-                    "d" => 0
-                ),
-                Dict{String, Any}(
-                    "gsq" => 0.258,
-                    "ma" => 1.115683,  # Sigma mass
-                    "mb" => 0.547862,  # Pion mass
-                    "l" => Xlineshape.l,
-                    "d" => 0
-                )
-            ]
+            "width" => Γ,
+            "l" => Xlineshape.l,
+            "ma" => Xlineshape.m1,
+            "mb" => Xlineshape.m2,
+            "d" => 1.5
         )
         
     else
@@ -320,7 +194,7 @@ function deep_convert_keys_to_string(obj)
 end
 
 # Use the custom lineshape parser to get proper function definitions
-decay_description, appendix = serializeToDict(model; lineshape_parser=xic_lineshape_parser)
+decay_description, appendix = serializeToDict(threebody_model; lineshape_parser=xic_lineshape_parser)
 
 # Collect all function definitions in proper format
 functions_array = []
@@ -517,7 +391,7 @@ final_dict = Dict{String, Any}(
 # -------------------------------------------------------------
 # Write JSON file
 # -------------------------------------------------------------
-output_file = joinpath(@__DIR__, "..", "data", "xic2pKpi-model_test.json")
+output_file = joinpath(@__DIR__, "..", "data", "xic2pKpi-model.json")
 println("Writing JSON model to: $output_file")
 
 open(output_file, "w") do io
