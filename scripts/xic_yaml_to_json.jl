@@ -60,7 +60,7 @@ model = Lc2ppiKModel(; chains, couplings, isobarnames)
 
 # Konvertierungsfunktionen hinzufügen
 function convert_breitWignerMinL_to_shapes_format(bw_minl)
-    @unpack pars, l, m1, m2, minL = bw_minl
+    @unpack pars, l, m1, m2, minL, mk, m0 = bw_minl
     m, Γ₀ = pars
     
     if l == 0
@@ -101,7 +101,7 @@ function convert_breitWignerMinL_to_shapes_format(bw_minl)
         new_width = Γ₀ * F2
         println(Γ₀, " -> ", new_width, "\n", p0, ", F2", F2)
 
-        return Dict{String, Any}(
+        #=return Dict{String, Any}(
             "type" => "BreitWigner",
             "mass" => m,
             "width" => new_width,  # ✅ Verwende die berechnete effektive Breite!
@@ -109,6 +109,18 @@ function convert_breitWignerMinL_to_shapes_format(bw_minl)
             "mb" => m2,
             "l" => l,
             "d" => d
+                )=#
+        return Dict{String, Any}(
+            "type" => "BreitWignerMinL",
+            "mass" => m,
+            "width" => Γ₀,  # ✅ Verwende die berechnete effektive Breite!
+            "l" => l,
+            "minL" => minL,
+            "m1" => m1,
+            "m2" => m2,
+            "mk" => mk,  # Pion-Masse für b-decay
+            "m0" => m0,  # Lc-Masse für b-decay
+            
                 )
             
         

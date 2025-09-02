@@ -2,11 +2,13 @@ import Pkg
 Pkg.activate(dirname(@__DIR__))  # Geht ein Verzeichnis hoch zum Hauptprojekt
 Pkg.instantiate()
 
+
+
 using Lc2ppiKSemileptonicModelLHCb
 using Lc2ppiKSemileptonicModelLHCb.ThreeBodyDecays
 using ThreeBodyDecaysIO
 using ThreeBodyDecaysIO.ThreeBodyDecays
-using ThreeBodyDecaysIO.HadronicLineshapes
+#using ThreeBodyDecaysIO.HadronicLineshapes
 using ThreeBodyDecaysIO.Parameters
 using ThreeBodyDecaysIO.DataFrames
 using ThreeBodyDecaysIO.JSON
@@ -18,6 +20,9 @@ using StatsBase
 using FHist
 using CSV
 using YAML
+
+include("/home/hvdsmagt/ThreeBodyDecays.jl/IO.jl/HadronicLineshapes/HadronicLineshapes.jl/src/shapes.jl")
+
 
 # Load the JSON model
 input = open(

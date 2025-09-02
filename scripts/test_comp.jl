@@ -2,6 +2,7 @@ import Pkg
 Pkg.activate(dirname(@__DIR__))  # Geht ein Verzeichnis hoch zum Hauptprojekt
 Pkg.instantiate()
 
+
 using Lc2ppiKSemileptonicModelLHCb
 using Lc2ppiKSemileptonicModelLHCb.ThreeBodyDecays
 using ThreeBodyDecaysIO
@@ -18,6 +19,9 @@ using StatsBase
 using FHist
 using CSV
 using YAML
+
+my_breakup(m², m1², m2²) = sqrtKallenFact(sqrt(m²), sqrt(m1²), sqrt(m2²)) / (2 * sqrt(m²))
+
 
 # Load the JSON model
 input = open(
@@ -134,6 +138,7 @@ function test_complex_lineshapes()
        
 
         s_test = σs[kj]
+        #s_test = 2.8
         
         amplitudeindj = amplitude(json_model.chains[i], σs; refζs = (1, 1, 1, 1))
         amplitudeindy = amplitude(yaml_model.chains[i], σs)
@@ -148,12 +153,7 @@ function test_complex_lineshapes()
         Γ₀ = yaml_lineshape.pars[2]     # Width from YAML  
         l = yaml_lineshape.l            # Angular momentum
         minL = yaml_lineshape.minL      # Minimum L
-        
-        # Extract parameters from JSON model  
-        json_lineshape = dcj.Xlineshape
-        json_m = json_lineshape.m
-        json_channel = json_lineshape.channels[1]
-        json_gsq = json_channel.gsq
+   
         
         sqrt_s_test = sqrt(s_test)
         
@@ -189,43 +189,70 @@ function test_complex_lineshapes()
         # Complete YAML reconstruction
         yaml_reconstructed = basic_BW * momentum_factors * ff_factors
         
-        # JSON should implement the same physics but with effective coupling
-        # Calculate what the JSON should give with correct gsq
-        p_json = breakup(sqrt_s_test, json_channel.ma, json_channel.mb)
-        p0_json = breakup(json_m, json_channel.ma, json_channel.mb)
-        
-        # JSON width calculation (from MultichannelBreitWigner)
-        FF_json = HadronicLineshapes.BlattWeisskopf{json_channel.l}(json_channel.d)
-        momentum_factor_json = (p_json / p0_json)^(2*json_channel.l + 1)
-        ff_ratio_json = FF_json(p_json)^2 / FF_json(p0_json)^2
-        
-        mΓ_json = json_gsq * 2*p_json / sqrt_s_test * momentum_factor_json * ff_ratio_json
-        json_reconstructed = 1 / (json_m^2 - s_test - 1im * json_m * mΓ_json / json_m)
-        
-        println("$name analysis:")
-        println("  s_test = $s_test GeV²")
-        println("  YAML parameters: m = $m_res, Γ₀ = $Γ₀, l = $l, minL = $minL")
-        println("  JSON parameters: m = $json_m, gsq = $json_gsq")
-        println("  Current momenta: p = $p_current, q = $q_current")
-        println("  Reference momenta: p₀ = $p0, q₀ = $q0")
-        println("  Γ_current = $Γ_current")
-        println("  momentum_factors = $momentum_factors")
-        println("  ff_factors = $ff_factors")
-        println("  Basic BW = $basic_BW")
-        println("  YAML reconstructed = $yaml_reconstructed")
-        println("  YAML actual = $lineshape_valuey")
-        println("  JSON reconstructed = $json_reconstructed")
-        println("  JSON actual = $lineshape_valuej")
-        
-        # Check reconstructions
-        yaml_error = abs(yaml_reconstructed - lineshape_valuey) / abs(lineshape_valuey) * 100
-        json_error = abs(json_reconstructed - lineshape_valuej) / abs(lineshape_valuej) * 100
-        
-        println("  YAML reconstruction error: $(yaml_error)%")
-        println("  JSON reconstruction error: $(json_error)%")
-        
 
+
+        #σ = sqrt(s_test)                
+        σ = s_test
+
+        m1, m2, mk = ms[3], ms[1], ms[2]
+        m0 = ms[4]
+        m, Γ₀ = yaml_lineshape.pars
+        print(m, " ", Γ₀, " ", m1, " ", m2, " ", mk, " ", m0, "\n")
+        l, minL = yaml_lineshape.l, yaml_lineshape.minL
+        println(l, minL)
+        p, p0 = my_breakup(σ, m1^2, m2^2), my_breakup(m^2, m1^2, m2^2)
+        q, q0 = my_breakup(m0^2, σ, mk^2), my_breakup(m0^2, m^2, mk^2)
+        Γ = Γ₀ * (p / p0)^(2l + 1) * m / sqrt(σ) * F²(l, p, p0, dR)
+        res = 1 / (m^2 - σ - 1im * m * Γ) * (p / p0)^l * (q / q0)^minL *sqrt(F²(l, p, p0, dR) * F²(minL, q, q0, dΛc))
+
+        println(res)
+
+        bwminl = bwminl = BreitWignerMinL(
+            pars = (m, Γ₀),
+            l = l,
+            minL = minL,
+            name = "L(1600)",
+            m1 = m1,
+            m2 = m2,
+            mk = mk,
+            m0 = m0
+        )
+        lineshape_valuej2 = bwminl(σ)
+        println("BreitWignerMinL result: ", lineshape_valuej2)
+
+        
        
+       # Ersetzen Sie die inkonsistenten breakup-Aufrufe:
+
+        # Check reconstructions
+        p = breakup(sqrt(σ), m1, m2)      # ← sqrt(σ) für Masse!
+        p0 = breakup(m, m1, m2)           # ← m für Masse!
+        q = breakup(m0, sqrt(σ), mk)      # ← sqrt(σ) für Masse!
+        q0 = breakup(m0, m, mk)           # ← m für Masse!
+
+        # VOLLSTÄNDIGE Width-Korrektur (wie BreitWignerMinL):
+        FFp = BlattWeisskopf{l}(dR)
+        FFq = BlattWeisskopf{minL}(dΛc)
+
+        # Resonance form factor correction (für die Width)
+        resonance_ff_correction = FFp(p)^2 / FFp(p0)^2
+
+        # Decay form factor correction  
+        decay_ff_correction = FFq(q)^2 / FFq(q0)^2
+
+        # Momentum-abhängige Width (exakt wie BreitWignerMinL):
+        Γ_full = Γ₀ * (p / p0)^(2*l + 1) * m / sqrt(σ) * resonance_ff_correction
+
+        # Erstelle MultichannelBreitWigner mit der VOLLEN width:
+        bw = MultichannelBreitWigner(m, Γ_full, m1, m2, l, dR)
+        ls = bw(σ)
+
+        # Amplitude correction (OHNE die FF, die schon in Γ_full sind):
+        amp_correction = (p / p0)^l * (q / q0)^minL * sqrt(decay_ff_correction)
+
+        final_result = amp_correction * ls
+        println("Final reconstructed result: ", final_result)
+  
         if(lineshape_valuej ≈ lineshape_valuey)
             println("✓ Lineshapes match for $name")
             println("  Lineshape(s=$s_test): $lineshape_valuej")
