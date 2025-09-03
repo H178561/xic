@@ -63,68 +63,18 @@ function convert_breitWignerMinL_to_shapes_format(bw_minl)
     @unpack pars, l, m1, m2, minL, mk, m0 = bw_minl
     m, Γ₀ = pars
     
-    if l == 0
-        # Für l=0: einfache BreitWigner
-        return Dict{String, Any}(
-            "type" => "BreitWigner",
-            "mass" => m,
-            "width" => Γ₀,
-            "ma" => m1,
-            "mb" => m2,
-            "l" => l,
-            "d" => 1.5
-        )
-    else
-        # Für l>0: MultichannelBreitWigner mit Form-Faktoren
-        d = 1.5  # Blatt-Weisskopf Parameter
-        d2 = 5.0
-
-        # Berechne Impuls am Resonanzpol
-        p0 = breakup(m, m1, m2)
+    return Dict{String, Any}(
+        "type" => "BreitWignerMinL",
+        "mass" => m,
+        "width" => Γ₀,  # ✅ Verwende die berechnete effektive Breite!
+        "l" => l,
+        "minL" => minL,
+        "m1" => m1,
+        "m2" => m2,
+        "mk" => mk, 
+        "m0" => m0,  
         
-        # Berechne effektive Kopplungskonstante
-        FF = HadronicLineshapes.BlattWeisskopf{l}(d)
-        FF2 = HadronicLineshapes.BlattWeisskopf{minL}(d2)
-        ff3 = HadronicLineshapes.BlattWeisskopf{l}(d2)  # Für b-decay immer l=0
-        print(FF(p0), ", ", FF2(p0), ", ", ff3(p0), "\n")
-        gsq_eff = m * Γ₀ / (2 * p0) * m / FF(p0)^2
-        gsq_eff = Γ₀ / FF(p0)^2
-        gsq_eff = Γ₀ * m / (2 * p0)
-
-        FF0 = FF(p0)
-
-        gsq_eff = m^2 * Γ₀ / (2*p0*FF0^2)
-                print(Γ₀, " -> ", gsq_eff, "\n", p0, ", FF", FF(p0))
-
-        p0 = breakup(m^2, m1^2, m2^2)
-        F2 = F²(l, p0, p0, d)
-        new_width = Γ₀ * F2
-        println(Γ₀, " -> ", new_width, "\n", p0, ", F2", F2)
-
-        #=return Dict{String, Any}(
-            "type" => "BreitWigner",
-            "mass" => m,
-            "width" => new_width,  # ✅ Verwende die berechnete effektive Breite!
-            "ma" => m1,
-            "mb" => m2,
-            "l" => l,
-            "d" => d
-                )=#
-        return Dict{String, Any}(
-            "type" => "BreitWignerMinL",
-            "mass" => m,
-            "width" => Γ₀,  # ✅ Verwende die berechnete effektive Breite!
-            "l" => l,
-            "minL" => minL,
-            "m1" => m1,
-            "m2" => m2,
-            "mk" => mk,  # Pion-Masse für b-decay
-            "m0" => m0,  # Lc-Masse für b-decay
-            
-                )
-            
-        
-    end
+            )
 end
 
 
@@ -476,6 +426,51 @@ validation_points = [
     )
 ]
 
+
+function calculate_lineshape_value(func_name, s_test, model)
+    """Calculate the actual lineshape value for a given resonance at s_test"""
+    
+    # Find the corresponding chain in the model
+    for (i, name) in enumerate(model.names)
+        if contains(func_name, name) || contains(name, func_name)
+            # Get the decay chain
+            dc = model.chains[i]
+            
+            # Evaluate the lineshape at s_test
+            try
+                lineshape_value = dc.Xlineshape(s_test)
+                println("Calculated $(func_name) at s=$s_test: $lineshape_value")
+                return lineshape_value
+            catch e
+                println("Warning: Could not evaluate $(func_name) at s=$s_test: $e")
+                return 0.0 + 0.0im
+            end
+        end
+    end
+    
+    # If not found in model names, try partial matching
+    for (i, name) in enumerate(model.names)
+        # Remove common suffixes/prefixes for matching
+        clean_func_name = replace(func_name, "_BW" => "", "_Flatte" => "", "_BuggBW" => "")
+        clean_model_name = replace(name, r"\([0-9]+\)" => "")  # Remove helicity numbers
+        
+        if contains(clean_func_name, clean_model_name) || contains(clean_model_name, clean_func_name)
+            dc = model.chains[i]
+            try
+                lineshape_value = dc.Xlineshape(s_test)
+                println("Calculated $(func_name) (matched as $name) at s=$s_test: $lineshape_value")
+                return lineshape_value
+            catch e
+                println("Warning: Could not evaluate $(func_name) at s=$s_test: $e")
+                return 0.0 + 0.0im
+            end
+        end
+    end
+    
+    println("Warning: Could not find resonance $(func_name) in model")
+    return 0.0 + 0.0im
+end
+
 # Add misc section with amplitude model checksums like Lc2pkpi
 # These would normally be computed by evaluating the model at validation points
 misc_checksums = []
@@ -500,12 +495,28 @@ for func in functions_array
         else
             "validation_point_m31sq"
         end
-        
+
+        # Calculate ACTUAL lineshape value at the validation point
+        s_test = if validation_point == "validation_point_m31sq"
+            3.2  # GeV²
+        elseif validation_point == "validation_point_m12sq"
+            3.2  # GeV²
+        elseif validation_point == "validation_point_m23sq"
+            1.4  # GeV²
+        else
+            3.2  # Default
+        end
+
+        # Find the corresponding resonance in the model and evaluate it
+        ival = calculate_lineshape_value(func_name, s_test, model)
+        #print(ival)
+        valstring = string(ival)
+        print(valstring)
         # Add placeholder checksum values (should be computed from actual model evaluation)
         push!(misc_checksums, Dict{String, Any}(
             "point" => validation_point,
             "distribution" => func_name,
-            "value" => "0.0 + 0.0i"  # Placeholder
+            "value" => valstring  # Placeholder
         ))
     end
 end

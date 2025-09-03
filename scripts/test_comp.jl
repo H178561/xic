@@ -219,7 +219,8 @@ function test_complex_lineshapes()
         )
         lineshape_valuej2 = bwminl(σ)
         println("BreitWignerMinL result: ", lineshape_valuej2)
-
+        #print all minl parameters
+        println("BreitWignerMinL parameters: ", bwminl.pars, " ", bwminl.l, " ", bwminl.minL, " ", bwminl.m1, " ", bwminl.m2, " ", bwminl.mk, " ", bwminl.m0)
         
        
        # Ersetzen Sie die inkonsistenten breakup-Aufrufe:

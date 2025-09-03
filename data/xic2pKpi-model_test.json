@@ -2384,102 +2384,102 @@
             {
                 "point": "validation_point_m23sq",
                 "distribution": "K2(1430)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "1.0605929686124058 + 0.09300544820210678im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(1405)_Flatte",
-                "value": "0.0 + 0.0i"
+                "value": "-0.7480602620708738 + 0.22521439829964157im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(1600)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "-0.8413870668635681 + 1.0288196439598711im"
             },
             {
                 "point": "validation_point_m12sq",
                 "distribution": "D(1700)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "-0.7549469725050753 + 1.2491071759250145im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(1890)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "2.0581524234155695 + 0.969652623076687im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(1800)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "0.31175839185156934 + 2.7743046879171995im"
             },
             {
                 "point": "validation_point_m12sq",
                 "distribution": "D(1620)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "-1.4362882643792008 + 0.5475224640890004im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(1670)_Flatte",
-                "value": "0.0 + 0.0i"
+                "value": "7.1545253442801355 - 3.3649086319352994im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(1690)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "-2.5500730717450057 + 1.9191443282214553im"
             },
             {
                 "point": "validation_point_m12sq",
                 "distribution": "D(1232)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "-0.7404036074559032 + 0.5652107430166499im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(1520)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "-2.6978837649307854 + 2.2818365433860084im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(1710)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "-1.2467836069029088 + 1.8893933853695875im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(2000)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "1.1399027771220502 + 0.4632913617282889im"
             },
             {
                 "point": "validation_point_m12sq",
                 "distribution": "D(1600)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "-0.88554623757115 + 0.7333325124315899im"
             },
             {
                 "point": "validation_point_m23sq",
                 "distribution": "K(892)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "-2.3515507328095135 + 0.437651312832446im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(1810)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "0.1063178856340571 + 5.088272158383114im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(1830)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "3.5494947934981664 + 3.5503827709673317im"
             },
             {
                 "point": "validation_point_m23sq",
                 "distribution": "K(700)_BuggBW",
-                "value": "0.0 + 0.0i"
+                "value": "-0.08082611162736267 + 0.333607184887443im"
             },
             {
                 "point": "validation_point_m23sq",
                 "distribution": "K(1430)_BuggBW",
-                "value": "0.0 + 0.0i"
+                "value": "1.396279057340752 + 0.5143191723277414im"
             },
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(1820)_BW",
-                "value": "0.0 + 0.0i"
+                "value": "4.131009883150977 + 3.9473064398945192im"
             }
         ]
     },
@@ -2571,26 +2571,30 @@
             "type": "BlattWeisskopf"
         },
         {
-            "name": "L(1800)_BW",
-            "mb": 0.938272046,
+            "mk": 0.13957018,
+            "m2": 0.938272046,
             "x": "m_31_sq",
-            "ma": 0.49367700000000003,
-            "mass": 1.8,
+            "minL": 0,
+            "m1": 0.49367700000000003,
             "width": 0.2,
             "l": 0,
-            "type": "BreitWigner",
-            "d": 1.5
+            "name": "L(1800)_BW",
+            "mass": 1.8,
+            "m0": 2.46794,
+            "type": "BreitWignerMinL"
         },
         {
-            "name": "D(1620)_BW",
-            "mb": 0.13957018,
+            "mk": 0.49367700000000003,
+            "m2": 0.13957018,
             "x": "m_12_sq",
-            "ma": 0.938272046,
-            "mass": 1.61,
+            "minL": 0,
+            "m1": 0.938272046,
             "width": 0.13,
             "l": 0,
-            "type": "BreitWigner",
-            "d": 1.5
+            "name": "D(1620)_BW",
+            "mass": 1.61,
+            "m0": 2.46794,
+            "type": "BreitWignerMinL"
         },
         {
             "name": "BlattWeisskopf_b_decay_l0",
@@ -2673,15 +2677,17 @@
             "type": "BreitWignerMinL"
         },
         {
-            "name": "L(2000)_BW",
-            "mb": 0.938272046,
+            "mk": 0.13957018,
+            "m2": 0.938272046,
             "x": "m_31_sq",
-            "ma": 0.49367700000000003,
-            "mass": 1.9881900000000001,
+            "minL": 0,
+            "m1": 0.49367700000000003,
             "width": 0.17926,
             "l": 0,
-            "type": "BreitWigner",
-            "d": 1.5
+            "name": "L(2000)_BW",
+            "mass": 1.9881900000000001,
+            "m0": 2.46794,
+            "type": "BreitWignerMinL"
         },
         {
             "mk": 0.49367700000000003,
