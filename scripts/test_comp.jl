@@ -269,6 +269,68 @@ function test_complex_lineshapes()
             println()
         end
         
+
+        #=
+        {
+            "mk": 0.938272046,
+            "m2": 0.49367700000000003,
+            "x": "m_31_sq",
+            "minL": 0,
+            "m1": 0.13957018,
+            "width": 0.27,
+            "l": 0,
+            "name": "K(1430)_BuggBWminL",
+            "gamma": 0.051629,
+            "mass": 1.425,
+            "m0": 2.46794,
+            "type": "BuggBreitWignerMinL"
+        },
+        =#
+
+        buggbwminl = BuggBreitWignerMinL(
+            pars = (1.425, 0.27, 0.051629),
+            l = 0,
+            minL = 0,
+            m1 = 0.13957018,
+            m2 = 0.49367700000000003,
+            mk = 0.938272046,
+            m0 = 2.46794,
+            name = "K(1430)"
+        )
+        s = 1.4
+        buggbwminl_value = buggbwminl(s)
+        println("BuggBreitWignerMinL result: ", buggbwminl_value)
+
+
+        #=
+          {
+            "mk": 0.13957018,
+            "m2": 0.938272046,
+            "x": "m_31_sq",
+            "minL": 0,
+            "m1": 0.49367700000000003,
+            "width": 0.0505,
+            "l": 0,
+            "name": "L(1405)_Flatte1405",
+            "mass": 1.4051,
+            "m0": 2.46794,
+            "type": "Flatte1405"
+        },
+        =#
+
+        flatte1405 = Flatte1405(
+            pars = (1.4051, 0.0505),
+            l = 0,
+            minL = 0,
+            m1 = 0.49367700000000003,
+            m2 = 0.938272046,
+            mk = 0.13957018,
+            m0 = 2.46794,
+            name = "L(1405)"
+        )
+        s = 3.2
+        flatte1405_value = flatte1405(s)
+        println("Flatte1405 result: ", flatte1405_value)
     end
 end
 

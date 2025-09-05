@@ -1,27 +1,32 @@
 # Inititial and final states
 Lambda_c+:
-  latex: \Lambda_c^+
+  latex: \Xi_c^+
   jp: 1/2^+
-  mass: 2467.94
+  mass: 2467.9400
   width: 3.25e-9
 
 p:
   latex: p
   jp: 1/2^+
-  mass: 938.272046
+  #mass: 938.272046
+  mass: 938.27208
   width: 0.0
 
 pi+:
   latex: \pi^+
   jp: 0^-
-  mass: 139.57018
+  #mass: 139.57018
+  mass: 139.57061
   width: 2.5284e-14
 
 K-:
   latex: K^-
   jp: 0^-
-  mass: 493.677
+  #mass: 493.677
+  mass: 493.67700
   width: 5.317e-14
+
+
 
 # Resonances
 L(1405):
