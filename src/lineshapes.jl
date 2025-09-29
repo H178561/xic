@@ -83,7 +83,7 @@ function (BW::Flatte1405)(σ)
     m, Γ₀ = BW.pars
     @unpack m1, m2, m0, mk = BW
     p, p0 = breakup(σ, m1^2, m2^2), breakup(m^2, mπ^2, mΣ^2)
-    print(mπ, " ", mΣ, "\n")
+    #print(mπ, " ", mΣ, "\n")
     p′, p0′ = breakup(σ, mπ^2, mΣ^2), breakup(m^2, mπ^2, mΣ^2)
     Γ1 = Γ₀ * (p / p0) * m / sqrt(σ)
     Γ2 = Γ₀ * (p′ / p0′) * m / sqrt(σ)

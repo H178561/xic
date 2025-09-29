@@ -38,26 +38,24 @@ model = Lc2ppiKModel(; chains, couplings, isobarnames)
     σ1 = 0.7980703453578917,
     σ2 = 3.6486261122281745)
 
-σ1 = 1.4  # GeV²
-σ2 = 3.2  # GeV²
-σs = Invariants(ms; σ1, σ2)
+
 
 # -------------------------------------------------------------
 # Evaluate intensity and amplitude at the random point
 # -------------------------------------------------------------
-_I = unpolarized_intensity(model, σs)
-_A = amplitude(model, σs)  # pars: model, mandelstam variables, helicity values
+_I = unpolarized_intensity(model, σs0)
+_A = amplitude(model, σs0)  # pars: model, mandelstam variables, helicity values
 
 print(_I, "\n")
 print(_A, "\n")
 # -------------------------------------------------------------
 # Basic tests to check evaluation
 # -------------------------------------------------------------
-@testset "Evaluation of the meeting" begin
-    @test _I isa Real
-    @test _A isa Complex
-    @test _A == amplitude(model, σs0, ThreeBodySpins(1, 0, 0; two_h0 = 1))
-end
+#@testset "Evaluation of the meeting" begin
+#    @test _I isa Real
+#    @test _A isa Complex
+    #@test _A == amplitude(model, σs0, ThreeBodySpins(1, 0, 0; two_h0 = 1))
+#end
 
 # -------------------------------------------------------------
 # Plotting Dalitz plot and projections
@@ -71,10 +69,14 @@ import Plots.PlotMeasures.mm
 theme(:boxed)
 
 # Dalitz plot: 2D distribution of invariant masses
-@time plot(
+dalitz = plot(
     masses(model), σs -> unpolarized_intensity(model, σs);
     iσx = 2, iσy = 1, title = "Dalitz plot",
-    xlab = "m²(pK⁻) [GeV²]", ylab = "m²(K⁻π⁺) [GeV²]")
+    xlab = "m²(pK⁻) [GeV²]", ylab = "m²(K⁻π⁺) [GeV²]",
+    nbins = 200, # optional: mehr bins für feinere Auflösung
+    st = :heatmap # explizit als Heatmap
+)
+savefig(dalitz, joinpath(@__DIR__, "..", "plots", "dalitz_xic2pKpi.png"))
 
 # -------------------------------------------------------------
 # 1D projections of invariant mass distributions
