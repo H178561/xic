@@ -1,0 +1,88 @@
+\pdfoutput=1
+% Uncomment line above if submitting to arXiv and using pdflatex
+% ============================================================================
+% Purpose: Template for LHCb documents
+% Authors: Tomasz Skwarnicki, Roger Forty, Ulrik Egede, Patrick Koppenburg
+% Created on: 2010-09-24
+% ============================================================================
+\documentclass[12pt,a4paper]{article}
+%%\documentclass[12pt,letter]{article}
+% For two column text, add "twocolumn" as an option to the document
+% class. Also uncomment the two "onecolumn" and "twocolumn" lines
+% around the title page below.
+
+% Variables that controls behaviour
+\usepackage{ifthen} % for conditional statements
+\newboolean{pdflatex}
+\setboolean{pdflatex}{true} % False for eps figures 
+
+\newboolean{articletitles}
+\setboolean{articletitles}{true} % False removes titles in references
+
+\newboolean{uprightparticles}
+\setboolean{uprightparticles}{false} %True for upright particle symbols
+
+%\newboolean{inbibliography}
+%\setboolean{inbibliography}{false} %True once you enter the bibliography
+
+% Define titles and authors here. It will then be used both in metadata and in
+% what is printed on the front page.
+\def\paperauthors{LHCb collaboration} % Leave as is for PAPER, CONF and FIGURE
+\def\paperasciititle{Amplitude analysis of the Lambda^+_c  pK^-pi^+ decay and Lambda^+_c baryon polarization measurement in semileptonic beauty hadron decays} % Set ASCII title here !! MAKE sure it's only ASCII characters !! 
+\def\papertitle{Amplitude analysis of the $\Lambda^+_c\to pK^-\pi^+$ decay and\\ $\Lambda^+_c$ baryon polarization measurement\\ in semileptonic beauty hadron decays} % Latex formatted title
+\def\paperkeywords{{High Energy Physics}, {LHCb}} % Comma separated list
+%\def\papercopyright{CERN on behalf of the LHCb collaboration}
+\def\papercopyright{\the\year\ CERN for the benefit of the LHCb collaboration} % new since 9/Apr/2018
+\def\paperlicence{CC BY 4.0 licence}
+\def\paperlicenceurl{https://creativecommons.org/licenses/by/4.0/}
+
+
+\input{preamble}
+\usepackage{longtable} % only for template; not usually to be used in PAPERs
+
+%User defined part
+\usepackage{amsmath}
+\usepackage{booktabs,url}
+\usepackage{braket}
+\usepackage[utf8]{inputenc}
+\usepackage{bm} % for bold letters \bm{\varepsilon}
+\usepackage{bigints} %big integral symbols
+%Tikz graphics
+\definecolor{darkgreen}{RGB}{0,102,0}
+\usepackage{tikz}
+\usetikzlibrary{arrows,matrix}
+
+\include{thesis-symbols}
+
+\graphicspath{{figs/}}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Main text %%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagestyle{plain} % restore page numbers for the main text
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+%% Uncomment during review phase. 
+%% Comment before a final submission.
+%\linenumbers
+
+%% This is the main body
+
+\input{supplementary-app}
+
+
+\addcontentsline{toc}{section}{References}
+%\setboolean{inbibliography}{true}
+\bibliographystyle{LHCb}
+\bibliography{standard}
+ 
+ 
+%\newpage
+%\input{Authorship_LHCb-PAPER-2022-002}
+
+
+\end{document}

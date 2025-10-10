@@ -17,6 +17,10 @@ using ThreeBodyDecaysIO.Parameters
 using ThreeBodyDecaysIO.JSON
 using YAML
 using Statistics
+using HadronicLineshapes
+
+using ThreeBodyDecaysIO.ThreeBodyDecays: breakup
+
 
 # -------------------------------------------------------------
 # Load model and particle definitions from YAML files
@@ -29,6 +33,15 @@ end
 defaultparameters = modelparameters["Default amplitude model"]
 
 
+function F²(l, p, p0, d)
+    pR = p * d
+    p0R = p0 * d
+    l == 0 && return 1.0
+    l == 1 && return (1 + p0R^2) / (1 + pR^2)
+    l == 2 && return (9 + 3p0R^2 + p0R^4) / (9 + 3pR^2 + pR^4)
+    l != 3 && error("l==$(l)>2 cannot be")
+    return (225 + 45 * (p0R^2) + 6 * (p0R^2)^2 + (p0R^2)^3) / (225 + 45 * (pR^2) + 6 * (pR^2)^2 + (pR^2)^3)
+end
 
 # -------------------------------------------------------------
 # Parse model dictionaries and convert to standard convention
@@ -47,45 +60,21 @@ model = Lc2ppiKModel(; chains, couplings, isobarnames)
 
 # Konvertierungsfunktionen hinzufügen
 function convert_breitWignerMinL_to_shapes_format(bw_minl)
-    @unpack pars, l, m1, m2 = bw_minl
+    @unpack pars, l, m1, m2, minL, mk, m0 = bw_minl
     m, Γ₀ = pars
     
-    if l == 0
-        # Für l=0: einfache BreitWigner
-        return Dict{String, Any}(
-            "type" => "BreitWigner",
-            "mass" => m,
-            "width" => Γ₀,
-            "ma" => m1,
-            "mb" => m2,
-            "l" => l,
-            "d" => 1.5
-        )
-    else
-        # Für l>0: MultichannelBreitWigner mit Form-Faktoren
-        d = 1.5  # Blatt-Weisskopf Parameter
+    return Dict{String, Any}(
+        "type" => "BreitWignerMinL",
+        "mass" => m,
+        "width" => Γ₀,  # ✅ Verwende die berechnete effektive Breite!
+        "l" => l,
+        "minL" => minL,
+        "m1" => m1,
+        "m2" => m2,
+        "mk" => mk, 
+        "m0" => m0,  
         
-        # Berechne Impuls am Resonanzpol
-        p0 = breakup(m, m1, m2)
-        
-        # Berechne effektive Kopplungskonstante
-        FF = BlattWeisskopf{l}(d)
-        gsq_eff = m * Γ₀ / (2 * p0) * m / FF(p0)^2
-        
-        return Dict{String, Any}(
-            "type" => "MultichannelBreitWigner",
-            "mass" => m,
-            "channels" => [
-                Dict{String, Any}(
-                    "gsq" => gsq_eff,
-                    "ma" => m1,
-                    "mb" => m2,
-                    "l" => l,
-                    "d" => d
-                )
-            ]
-        )
-    end
+            )
 end
 
 
@@ -102,10 +91,11 @@ function xic_lineshape_parser(Xlineshape)
     # Create proper function name based on lineshape type
     if lineshape_type <: BreitWignerMinL
         print(Xlineshape)
-        scattering_key = "$(lineshape_name)_BW"
+        scattering_key = "$(lineshape_name)_BWminL"
         
         # Konvertiere zu shapes.jl Format
         converted_params = convert_breitWignerMinL_to_shapes_format(Xlineshape)
+        k = 
         
         # Bestimme x-Variable
         x_var = if contains(lineshape_name, "L") || contains(lineshape_name, "Λ")
@@ -130,125 +120,68 @@ function xic_lineshape_parser(Xlineshape)
         println("Converted $(lineshape_name) (l=$(Xlineshape.l)) to $(converted_params["type"])")
         
     elseif lineshape_type <: BuggBreitWignerMinL
-        scattering_key = "$(lineshape_name)_BuggBW"
+        scattering_key = "$(lineshape_name)_BuggBWminL"
         m, Γ, γ = Xlineshape.pars
-        
+        l, minl = Xlineshape.l, Xlineshape.minL
+        m1, m2, mk, m0 = Xlineshape.m1, Xlineshape.m2, Xlineshape.mk, Xlineshape.m0
+
         lineshape_dict = Dict{String, Any}(
             "name" => scattering_key,
-            "type" => "generic_function",
-            "expression" => "1/($(m)^2 - σ - i * $(m) * (σ - $(Xlineshape.m1^2 + Xlineshape.m2^2)) / ($(m)^2 - $(Xlineshape.m1^2 + Xlineshape.m2^2)) * $(Γ) * exp($(-γ) * σ))"
+            "type" => "BuggBreitWignerMinL",
+            "x" => "m_31_sq",
+            "mass" => m,
+            "width" => Γ,
+            "gamma" => γ,
+            "l" => l,
+            "minL" => minl,
+            "m1" => m1,
+            "m2" => m2,
+            "mk" => mk,
+            "m0" => m0
         )
         
     elseif lineshape_type <: Flatte1405
-        scattering_key = "$(lineshape_name)_Flatte"
+        scattering_key = "$(lineshape_name)_Flatte1405"
         m, Γ = Xlineshape.pars
+        l, minl = Xlineshape.l, Xlineshape.minL
+        m1, m2, mk, m0 = Xlineshape.m1, Xlineshape.m2, Xlineshape.mk, Xlineshape.m0
         print(Xlineshape)
 
-        # Physical constants
-        mπ = 0.13957018  # Pion mass
-        mΣ = 1.18937     # Sigma mass
-        
-        # Calculate gsq by fitting to the actual lineshape behavior
-        function calculate_flatte_couplings(lineshape, m_res, width_total)
-            # Test at multiple points to determine coupling ratio
-            test_points = [m_res^2 * 0.9, m_res^2, m_res^2 * 1.1]
-            
-            # Calculate phase space factors
-            phase_space_ratios = []
-            for s in test_points
-                if s > (lineshape.m1 + lineshape.m2)^2 && s > (mπ + mΣ)^2
-                    p1 = breakup(s, lineshape.m1^2, lineshape.m2^2)
-                    p2 = breakup(s, mπ^2, mΣ^2)
-                    rho1 = (2 * p1 / sqrt(s)) * (m_res / sqrt(s))
-                    rho2 = (2 * p2 / sqrt(s)) * (m_res / sqrt(s))
-                    push!(phase_space_ratios, rho1 / (rho1 + rho2))
-                end
-            end
-            
-            # Use average ratio or physical branching ratio
-            if !isempty(phase_space_ratios)
-                avg_ratio = mean(phase_space_ratios)
-            else
-                avg_ratio = 0.6  # Default: 60% pK, 40% Σπ
-            end
-            
-            # Calculate reference phase space at resonance
-            s_ref = m_res^2
-            p1_ref = breakup(s_ref, lineshape.m1^2, lineshape.m2^2)
-            p2_ref = breakup(s_ref, mπ^2, mΣ^2)
-            rho1_ref = (2 * p1_ref / sqrt(s_ref)) * (m_res / sqrt(s_ref))
-            rho2_ref = (2 * p2_ref / sqrt(s_ref)) * (m_res / sqrt(s_ref))
-            
-            # Distribute total width according to ratio
-            gsq1 = (width_total * avg_ratio) / rho1_ref
-            gsq2 = (width_total * (1 - avg_ratio)) / rho2_ref
-            
-            return gsq1, gsq2, avg_ratio
-        end
-        
-        gsq1, gsq2, ratio = calculate_flatte_couplings(Xlineshape, m, Γ)
-        
-        println("Calculated gsq values for $(lineshape_name):")
-        println("  Total width: $Γ GeV")
-        println("  Channel ratio (pK:Σπ): $(ratio):$(1-ratio)")
-        println("  Channel 1 (pK): gsq = $gsq1")
-        println("  Channel 2 (Σπ): gsq = $gsq2")
-        
-        
         
         lineshape_dict = Dict{String, Any}(
             "name" => scattering_key,
-            "type" => "MultichannelBreitWigner",
+            "type" => "Flatte1405",
             "x" => "m_31_sq",
             "mass" => m,
-            "channels" => [
-                Dict{String, Any}(
-                    "gsq" => 0.32875,  # Match Lc2pkpi values
-                    #"gsq" => gsq1,
-                    "ma" => Xlineshape.m1,
-                    "mb" => Xlineshape.m2,
-                    "l" => Xlineshape.l,
-                    "d" => 0
-                ),
-                Dict{String, Any}(
-                    "gsq" => 0.32875,
-                    #"gsq" => gsq2,
-                    "ma" => 1.18937,  # Sigma mass
-                    "mb" => 0.13957018,  # Pion mass
-                    "l" => Xlineshape.l,
-                    "d" => 0
-                )
-            ]
+            "width" => Γ,
+            "l" => l,
+            "minL" => minl,
+            "m1" => m1,
+            "m2" => m2,
+            "mk" => mk,
+            "m0" => m0
         )
         
     elseif lineshape_type <: L1670Flatte
         print(Xlineshape)
-        scattering_key = "$(lineshape_name)_Flatte"
+        scattering_key = "$(lineshape_name)_L1670Flatte"
         m, Γ = Xlineshape.pars
+        l, minl = Xlineshape.l, Xlineshape.minL
+        m1, m2, mk, m0 = Xlineshape.m1, Xlineshape.m2, Xlineshape.mk, Xlineshape.m0
         
         lineshape_dict = Dict{String, Any}(
             "name" => scattering_key,
-            "type" => "MultichannelBreitWigner",
+            "type" => "L1670Flatte",
             "x" => "m_31_sq",
             "mass" => m,
-            "channels" => [
-                Dict{String, Any}(
-                    "gsq" => 0.258,  # Match Lc2pkpi values
-                    "ma" => Xlineshape.m1,
-                    "mb" => Xlineshape.m2,
-                    "l" => Xlineshape.l,
-                    "d" => 0
-                ),
-                Dict{String, Any}(
-                    "gsq" => 0.258,
-                    "ma" => 1.115683,  # Sigma mass
-                    "mb" => 0.547862,  # Pion mass
-                    "l" => Xlineshape.l,
-                    "d" => 0
-                )
-            ]
+            "width" => Γ,
+            "l" => l,
+            "minL" => minl,
+            "m1" => m1,
+            "m2" => m2,
+            "mk" => mk,
+            "m0" => m0,
         )
-        
     else
         # Fallback for unknown lineshapes
         @warn "Using fallback BreitWigner serialization for $(lineshape_type)"
@@ -271,9 +204,12 @@ function xic_lineshape_parser(Xlineshape)
     
     # Add Blatt-Weisskopf form factors based on angular momentum
     l_val = get(lineshape_dict, "l", 0)
+    minl_val = get(lineshape_dict, "minl", 0)
+
     if l_val > 0
+        l_val2 = 0
         ff_resonance = "BlattWeisskopf_resonance_l$(l_val)"
-        ff_decay = "BlattWeisskopf_b_decay_l$(l_val)"
+        ff_decay = "BlattWeisskopf_b_decay_l$(minl_val)"
         
         if !haskey(appendix, ff_resonance)
             appendix[ff_resonance] = Dict{String, Any}(
@@ -289,11 +225,13 @@ function xic_lineshape_parser(Xlineshape)
                 "name" => ff_decay,
                 "type" => "BlattWeisskopf",
                 "radius" => 5.0,
-                "l" => l_val
+                "l" => minl_val
             )
         end
         
         return (; scattering=scattering_key, FF_production=ff_decay, FF_decay=ff_resonance), appendix
+        #return (; scattering=scattering_key, FF_production=ff_resonance, FF_decay=ff_decay), appendix
+
     else
         return (; scattering=scattering_key, FF_production="", FF_decay=""), appendix
     end
@@ -371,7 +309,8 @@ if haskey(decay_description, :chains)
                                     end
                                 end
                             end
-                            vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_b_decay_l$(l_val)" : ""
+                            vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_b_decay_l$(0)" : ""
+                            #vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_resonance_l$(l_val)" : ""
                         end
                     elseif vertex[:type] == "parity"
                         # Add form factor for parity vertices (resonance)
@@ -387,6 +326,7 @@ if haskey(decay_description, :chains)
                                 end
                             end
                             vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_resonance_l$(l_val)" : ""
+                            #vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_b_decay_l$(0)" : ""
                         end
                     end
                 end
@@ -431,6 +371,51 @@ validation_points = [
     )
 ]
 
+
+function calculate_lineshape_value(func_name, s_test, model)
+    """Calculate the actual lineshape value for a given resonance at s_test"""
+    
+    # Find the corresponding chain in the model
+    for (i, name) in enumerate(model.names)
+        if contains(func_name, name) || contains(name, func_name)
+            # Get the decay chain
+            dc = model.chains[i]
+            
+            # Evaluate the lineshape at s_test
+            try
+                lineshape_value = dc.Xlineshape(s_test)
+                println("Calculated $(func_name) at s=$s_test: $lineshape_value")
+                return lineshape_value
+            catch e
+                println("Warning: Could not evaluate $(func_name) at s=$s_test: $e")
+                return 0.0 + 0.0im
+            end
+        end
+    end
+    
+    # If not found in model names, try partial matching
+    for (i, name) in enumerate(model.names)
+        # Remove common suffixes/prefixes for matching
+        clean_func_name = replace(func_name, "_BWminL" => "", "_Flatte1405" => "", "_L1670Flatte" => "", "_BuggBWminL" => "")
+        clean_model_name = replace(name, r"\([0-9]+\)" => "")  # Remove helicity numbers
+        
+        if contains(clean_func_name, clean_model_name) || contains(clean_model_name, clean_func_name)
+            dc = model.chains[i]
+            try
+                lineshape_value = dc.Xlineshape(s_test)
+                println("Calculated $(func_name) (matched as $name) at s=$s_test: $lineshape_value")
+                return lineshape_value
+            catch e
+                println("Warning: Could not evaluate $(func_name) at s=$s_test: $e")
+                return 0.0 + 0.0im
+            end
+        end
+    end
+    
+    println("Warning: Could not find resonance $(func_name) in model")
+    return 0.0 + 0.0im
+end
+
 # Add misc section with amplitude model checksums like Lc2pkpi
 # These would normally be computed by evaluating the model at validation points
 misc_checksums = []
@@ -446,21 +431,37 @@ push!(misc_checksums, Dict{String, Any}(
 for func in functions_array
     if haskey(func, "name") && haskey(func, "type") && func["type"] != "BlattWeisskopf"
         func_name = func["name"]
-        validation_point = if contains(func_name, "L") || contains(func_name, "Λ")
+        validation_point = if startswith(func_name, "L") || startswith(func_name, "Λ")
             "validation_point_m31sq"
-        elseif contains(func_name, "D") || contains(func_name, "Δ")
+        elseif startswith(func_name, "D") || startswith(func_name, "Δ")
             "validation_point_m12sq" 
-        elseif contains(func_name, "K")
+        elseif startswith(func_name, "K")
             "validation_point_m23sq"
         else
             "validation_point_m31sq"
         end
-        
+
+        # Calculate ACTUAL lineshape value at the validation point
+        s_test = if validation_point == "validation_point_m31sq"
+            3.2  # GeV²
+        elseif validation_point == "validation_point_m12sq"
+            3.2  # GeV²
+        elseif validation_point == "validation_point_m23sq"
+            1.4  # GeV²
+        else
+            3.2  # Default
+        end
+        #print("\n", validation_point, " ", s_test, " ", func_name, "\n")
+        # Find the corresponding resonance in the model and evaluate it
+        ival = calculate_lineshape_value(func_name, s_test, model)
+        #print(ival)
+        valstring = string(ival)
+        print(valstring)
         # Add placeholder checksum values (should be computed from actual model evaluation)
         push!(misc_checksums, Dict{String, Any}(
             "point" => validation_point,
             "distribution" => func_name,
-            "value" => "0.0 + 0.0i"  # Placeholder
+            "value" => valstring  # Placeholder
         ))
     end
 end
