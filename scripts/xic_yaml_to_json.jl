@@ -57,7 +57,7 @@ list = [
     "Alternative model 10 - L(1800) resonance removed",
     "Alternative model 11 - L(1890) resonance removed",
     "Alternative model 12 - K(1430) m=1370 MeV, Γ=180 MeV",
-    "Alternative model 13 - K(1430) m=1430 MeV, Γ=460 MeV",
+    "Alternative model 13 - K(1430) m=1370 MeV, Γ=360 MeV",
     "Alternative model 14 - K(1430) m=1430 MeV, Γ=180 MeV",
     "Alternative model 15 - K(1430) m=1430 MeV, Γ=360 MeV",
     "Alternative model 16 - Multiple K mass variations 1",
@@ -65,7 +65,18 @@ list = [
     "Alternative model 18 - Multiple K mass variations 3",
     "Alternative model 19 - Multiple K mass variations 4",
     "Alternative model 20 - L(1405) free Flatte widths",
-    "Alternative model 21 - L(1600) with free mass and width"
+    "Alternative model 21 - L(1600) with free mass and width",
+    "Alternative model 22 - L(1600) with free mass and width",
+    "Alternative model 23 - L(1710) with free mass and width",
+    "Alternative model 24 - L(1800) contribution added with free mass and width",
+    "Alternative model 25 - L(1830) contribution added with free width",
+    "Alternative model 26 - L(1890) with free mass and width",
+    "Alternative model 27 - L(2000) with free mass and width",
+    "Alternative model 28 - L(2100) contribution added with PDG values",
+    "Alternative model 29 - L(2110) contribution added with PDG values",
+    "Alternative model 30 - S(1670) contribution added with PDG values",
+    "Alternative model 31 - S(1775) contribution added with PDG values",
+    "Alternative model 32 - Free radial parameter rXic"
 ]
 
 global i = 0
@@ -149,7 +160,7 @@ for model in list
         
         # Create proper function name based on lineshape type
         if lineshape_type <: BreitWignerMinL
-            print(Xlineshape)
+            #print(Xlineshape)
             scattering_key = "$(lineshape_name)_BWminL"
             
             # Konvertiere zu shapes.jl Format
@@ -175,7 +186,7 @@ for model in list
             # Füge konvertierte Parameter hinzu
             merge!(lineshape_dict, converted_params)
             
-            println("Converted $(lineshape_name) (l=$(Xlineshape.l)) to $(converted_params["type"])")
+            #println("Converted $(lineshape_name) (l=$(Xlineshape.l)) to $(converted_params["type"])")
             
         elseif lineshape_type <: BuggBreitWignerMinL
             scattering_key = "$(lineshape_name)_BuggBWminL"
@@ -203,7 +214,7 @@ for model in list
             m, Γ = Xlineshape.pars
             l, minl = Xlineshape.l, Xlineshape.minL
             m1, m2, mk, m0 = Xlineshape.m1, Xlineshape.m2, Xlineshape.mk, Xlineshape.m0
-            print(Xlineshape)
+            #print(Xlineshape)
 
             
             lineshape_dict = Dict{String, Any}(
@@ -221,7 +232,7 @@ for model in list
             )
             
         elseif lineshape_type <: L1670Flatte
-            print(Xlineshape)
+            #print(Xlineshape)
             scattering_key = "$(lineshape_name)_L1670Flatte"
             m, Γ = Xlineshape.pars
             l, minl = Xlineshape.l, Xlineshape.minL
@@ -442,7 +453,7 @@ for model in list
                 # Evaluate the lineshape at s_test
                 try
                     lineshape_value = dc.Xlineshape(s_test)
-                    println("Calculated $(func_name) at s=$s_test: $lineshape_value")
+                    #println("Calculated $(func_name) at s=$s_test: $lineshape_value")
                     return lineshape_value
                 catch e
                     println("Warning: Could not evaluate $(func_name) at s=$s_test: $e")
@@ -514,7 +525,7 @@ for model in list
             ival = calculate_lineshape_value(func_name, s_test, model)
             #print(ival)
             valstring = string(ival)
-            print(valstring)
+            #print(valstring)
             # Add placeholder checksum values (should be computed from actual model evaluation)
             push!(misc_checksums, Dict{String, Any}(
                 "point" => validation_point,
@@ -583,8 +594,8 @@ for model in list
         JSON.print(io, final_dict, 4)
     end
 
-    println("✓ Successfully converted XiC → pKπ model to JSON format")
-    println("  Output file: $output_file")
+    #println("✓ Successfully converted XiC → pKπ model to JSON format")
+    #println("  Output file: $output_file")
     println("  Number of decay chains: $(length(decay_description[:chains]))")
     println("  Number of resonances: $(length(unique(isobarnames)))")
 

@@ -176,3 +176,33 @@ Sigma-:
   jp: 1/2^+
   mass: 1189.37
   width: 4.45e-12
+
+# Additional Lambda resonances
+L(2100):
+  latex: \Lambda(2100)
+  jp: 7/2^-
+  mass: 2100
+  width: 200
+  lineshape: BreitWignerMinL
+
+L(2110):
+  latex: \Lambda(2110)
+  jp: 5/2^+
+  mass: 2110
+  width: 200
+  lineshape: BreitWignerMinL
+
+# Sigma resonances
+S(1670):
+  latex: \Sigma(1670)
+  jp: 3/2^-
+  mass: 1670
+  width: 60
+  lineshape: BreitWignerMinL
+
+S(1775):
+  latex: \Sigma(1775)
+  jp: 5/2^-
+  mass: 1775
+  width: 120
+  lineshape: BreitWignerMinL

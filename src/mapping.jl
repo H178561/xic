@@ -1,7 +1,7 @@
 function selectindexmap(isobarname)
     #
     couplingindexmap = Dict(
-        r"[L|D].*" => Dict(
+        r"[L|D|S].*" => Dict(  # Added S for Sigma resonances
             '1' => (1, 0),
             '2' => (-1, 0)),
         r"^K2\(1430\)$|^K\(892\)$|^K\(1410\)$" => Dict(

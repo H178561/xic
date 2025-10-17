@@ -26,7 +26,7 @@ ifhyphenaverage(v::Number) = v
 function definechaininputs(key, dict; tbs)
     @unpack mass, width, lineshape = dict
     #
-    k = Dict('K' => 1, 'D' => 3, 'L' => 2)[first(key)]
+    k = Dict('K' => 1, 'D' => 3, 'L' => 2, 'S' => 3)[first(key)]  # Changed S => 3 for Sigma resonances (pπ system)
     #
     jp_R = str2jp(dict["jp"])
     parity = jp_R.p
@@ -67,8 +67,13 @@ end
 
 # shape parameters
 function parseshapedparameter(parname)
-    keytemp = r"([M,G]|gamma|alpha)"
-    nametemp = r"([L,K,D]\([0-9]*\))"
+    # Check for special radial parameter rXic first
+    if parname == "rXic"
+        return (key="r", isobarname="Xic")
+    end
+    
+    keytemp = r"([M,G]|G[12]|gamma|alpha)"  # Added G1, G2 for Flatte parameters
+    nametemp = r"([L,K,D,S]\([0-9]*\))"  # Added S for Sigma resonances
     m = match(keytemp * nametemp, parname)
     m === nothing && error("The name of the shared parameter, $(parname), is not recognized!")
     return (key=m[1], isobarname=m[2])
@@ -77,8 +82,11 @@ end
 function keyname2symbol(key)
     key == "M" && return :m
     key == "G" && return :Γ
+    key == "G1" && return :g1  # Flatte parameter g1
+    key == "G2" && return :g2  # Flatte parameter g2
     key == "gamma" && return :γ
     key == "alpha" && return :α
+    key == "r" && return :d  # radial parameter d for Blatt-Weisskopf form factors
     error("The name of the shared parameter, $(key), is not recognized!")
 end
 
@@ -111,9 +119,9 @@ function parse_model_dictionaries(modeldict; particledict)
         isobars[key] = definechaininputs(key, dict; tbs=_tbs)
     end
 
-    # 3) get parameters
+    # 3) get parameters (exclude rXic which is a global form factor parameter)
     defaultparameters = modeldict["parameters"]
-    shapeparameters = filter(x -> x[1] != 'A', keys(defaultparameters))
+    shapeparameters = filter(x -> x[1] != 'A' && x != "rXic", keys(defaultparameters))
     parameterupdates = [
         replacementpair(parname, defaultparameters[parname])
         for parname in shapeparameters]
