@@ -44,7 +44,7 @@ end
 
 # list of models
 list = [
-    "Default amplitude model",
+    #"Default amplitude model",
     #"Alternative model 1 - Delta resonances with free mass and width",
     #"Alternative model 2 - K(700) Relativistic BW",
     #"Alternative model 3 - K(700) with free mass and width",
@@ -64,7 +64,7 @@ list = [
     #"Alternative model 17 - Multiple K mass variations 2",
     #"Alternative model 18 - Multiple K mass variations 3",
     #"Alternative model 19 - Multiple K mass variations 4",
-    #"Alternative model 20 - L(1405) free Flatte widths",
+    "Alternative model 20 - L(1405) free Flatte widths",
     #"Alternative model 21 - L(1600) with free mass and width",
     #"Alternative model 22 - L(1600) with free mass and width",
     #"Alternative model 23 - L(1710) with free mass and width",

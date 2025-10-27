@@ -44,7 +44,7 @@ end
 
 # list of models
 list = [
-    "Default amplitude model",
+    #"Default amplitude model",
     #"Alternative model 1 - Delta resonances with free mass and width",
     #"Alternative model 2 - K(700) Relativistic BW",
     #"Alternative model 3 - K(700) with free mass and width",
@@ -64,7 +64,7 @@ list = [
     #"Alternative model 17 - Multiple K mass variations 2",
     #"Alternative model 18 - Multiple K mass variations 3",
     #"Alternative model 19 - Multiple K mass variations 4",
-    #"Alternative model 20 - L(1405) free Flatte widths",
+    "Alternative model 20 - L(1405) free Flatte widths",
     #"Alternative model 21 - L(1600) with free mass and width",
     #"Alternative model 22 - L(1600) with free mass and width",
     #"Alternative model 23 - L(1710) with free mass and width",
@@ -92,7 +92,8 @@ for model in list
         
         # Fix fixed parameters by adding dummy uncertainties
         if haskey(defaultparameters, "parameters")
-            for (param_name, param_value) in defaultparameters["parameters"]
+            params = defaultparameters["parameters"]
+            for (param_name, param_value) in params
                 if isa(param_value, String)
                     # Check if it's a fixed parameter (just a number without ±)
                     if !contains(param_value, "±") && !contains(param_value, "+/-")
@@ -100,8 +101,8 @@ for model in list
                             # Try to parse as a number
                             val = parse(Float64, strip(param_value))
                             # Convert to measured parameter format with tiny uncertainty
-                            defaultparameters["parameters"][param_name] = "$val ± 0.0001"
-                            println("  Fixed parameter $param_name: $param_value → $(defaultparameters["parameters"][param_name])")
+                            params[param_name] = "$val ± 0.0001"
+                            println("  Fixed parameter $param_name: $param_value → $(params[param_name])")
                         catch
                             # If parsing fails, leave as is
                             println("  Warning: Could not parse parameter $param_name: $param_value")
@@ -109,10 +110,50 @@ for model in list
                     end
                 end
             end
+            
+            # -------------------------------------------------------------
+            # Special handling for Flatte parameters - store G1 and G2 separately
+            # We'll keep them in the YAML but extract them later for JSON
+            # -------------------------------------------------------------
+            # Check if we have G1 and G2 parameters (Flatte1405 case)
+            g1_key = findfirst(k -> contains(k, "G1"), collect(keys(params)))
+            g2_key = findfirst(k -> contains(k, "G2"), collect(keys(params)))
+            
+            # Store G1 and G2 values for later use in JSON conversion
+            global flatte_g1 = nothing
+            global flatte_g2 = nothing
+            
+            if g1_key !== nothing && g2_key !== nothing
+                # Get the actual key strings
+                param_keys = collect(keys(params))
+                g1_key_str = param_keys[g1_key]
+                g2_key_str = param_keys[g2_key]
+                
+                # Extract G1 and G2 values
+                g1_str = params[g1_key_str]
+                g2_str = params[g2_key_str]
+                
+                # Parse the measured parameters
+                g1_val = parse(Float64, split(g1_str, "±")[1] |> strip)
+                g2_val = parse(Float64, split(g2_str, "±")[1] |> strip)
+                
+                # Store globally for JSON serialization
+                flatte_g1 = g1_val
+                flatte_g2 = g2_val
+                
+                # Calculate total width as sum of G1 and G2 for the model
+                total_width = g1_val + g2_val
+                
+                # Remove G1 and G2, add total width parameter for model creation
+                resonance_name = replace(g1_key_str, "G1" => "")
+                delete!(params, g1_key_str)
+                delete!(params, g2_key_str)
+                params["G" * resonance_name] = string(total_width) * " ± 0.005"
+                
+                println("  Flatte parameters: G1=$g1_val, G2=$g2_val (total Γ=$total_width for model)")
+            end
         end
-
-
-
+    
     # -------------------------------------------------------------
     # Parse model dictionaries and convert to standard convention
     # -------------------------------------------------------------
@@ -216,13 +257,12 @@ for model in list
             m1, m2, mk, m0 = Xlineshape.m1, Xlineshape.m2, Xlineshape.mk, Xlineshape.m0
             #print(Xlineshape)
 
-            
+            # Use stored G1 and G2 values if available, otherwise use total width
             lineshape_dict = Dict{String, Any}(
                 "name" => scattering_key,
                 "type" => "Flatte1405",
                 "x" => "m_31_sq",
                 "mass" => m,
-                "width" => Γ,
                 "l" => l,
                 "minL" => minl,
                 "m1" => m1,
@@ -230,6 +270,14 @@ for model in list
                 "mk" => mk,
                 "m0" => m0
             )
+            
+            # Add G1 and G2 separately if they exist, otherwise add total width
+            if @isdefined(flatte_g1) && flatte_g1 !== nothing && @isdefined(flatte_g2) && flatte_g2 !== nothing
+                lineshape_dict["g1"] = flatte_g1  # pK channel coupling
+                lineshape_dict["g2"] = flatte_g2  # Σπ channel coupling
+            else
+                lineshape_dict["width"] = Γ  # Fallback to total width
+            end
             
         elseif lineshape_type <: L1670Flatte
             #print(Xlineshape)
@@ -583,7 +631,7 @@ for model in list
     )
 
     # Don't add separate metadata - keep format exactly like Lc2pkpi
-
+    i=20
     # -------------------------------------------------------------
     # Write JSON file
     # -------------------------------------------------------------

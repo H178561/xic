@@ -64,7 +64,7 @@ function (BW::BuggBreitWignerMinL)(σ)
     1 / (m^2 - σ - 1im * m * Γ)
 end
 
-# Flatte1405
+# Flatte1405 - Standard version with single width parameter
 @with_kw struct Flatte1405{T} <: Lineshape
     pars::T
     l::Int
@@ -80,14 +80,28 @@ end
 #
 Flatte1405(pars::T; kw...) where {T} = Flatte1405(; pars, kw...)
 function (BW::Flatte1405)(σ)
-    m, Γ₀ = BW.pars
-    @unpack m1, m2, m0, mk = BW
-    p, p0 = breakup(σ, m1^2, m2^2), breakup(m^2, mπ^2, mΣ^2)
-    #print(mπ, " ", mΣ, "\n")
-    p′, p0′ = breakup(σ, mπ^2, mΣ^2), breakup(m^2, mπ^2, mΣ^2)
-    Γ1 = Γ₀ * (p / p0) * m / sqrt(σ)
-    Γ2 = Γ₀ * (p′ / p0′) * m / sqrt(σ)
-    Γ = Γ1 + Γ2
+    # Check if pars has 2 or 3 elements (backward compatibility)
+    if length(BW.pars) == 2
+        # Standard: (m, Γ₀) - same width for both channels
+        m, Γ₀ = BW.pars
+        @unpack m1, m2, m0, mk = BW
+        p, p0 = breakup(σ, m1^2, m2^2), breakup(m^2, mπ^2, mΣ^2)
+        p′, p0′ = breakup(σ, mπ^2, mΣ^2), breakup(m^2, mπ^2, mΣ^2)
+        Γ1 = Γ₀ * (p / p0) * m / sqrt(σ)
+        Γ2 = Γ₀ * (p′ / p0′) * m / sqrt(σ)
+        Γ = Γ1 + Γ2
+    elseif length(BW.pars) == 3
+        # Alternative model 20: (m, g1, g2) - separate couplings for each channel
+        m, g1, g2 = BW.pars
+        @unpack m1, m2, m0, mk = BW
+        p, p0 = breakup(σ, m1^2, m2^2), breakup(m^2, mπ^2, mΣ^2)
+        p′, p0′ = breakup(σ, mπ^2, mΣ^2), breakup(m^2, mπ^2, mΣ^2)
+        Γ1 = g1 * (p / p0) * m / sqrt(σ)      # pK channel with g1
+        Γ2 = g2 * (p′ / p0′) * m / sqrt(σ)    # Σπ channel with g2
+        Γ = Γ1 + Γ2
+    else
+        error("Flatte1405 pars must have 2 (m, Γ₀) or 3 (m, g1, g2) elements")
+    end
     1 / (m^2 - σ - 1im * m * Γ)
 end
 

@@ -1,5 +1,6 @@
 # -------------------------------------------------------------
-# Script to convert XiC to pKπ model from YAML to JSON format
+# Script to convert XiC to pKπ models 30 and 31 from YAML to JSON format
+# These models contain S (Sigma) resonances
 # -------------------------------------------------------------
 
 # Add this at the top of xic_yaml_to_json.jl (before any other code)
@@ -39,47 +40,13 @@ begin
     modelparameters = YAML.load_file(joinpath(@__DIR__, "..", "data", "xic-model-definitions.yaml"))
 end
 
-#defaultparameters = modelparameters["Default amplitude model"]
-
-
 # list of models
 list = [
-    "Default amplitude model",
-    #"Alternative model 1 - Delta resonances with free mass and width",
-    #"Alternative model 2 - K(700) Relativistic BW",
-    #"Alternative model 3 - K(700) with free mass and width",
-    #"Alternative model 4 - K(1430) Relativistic BW",
-    #"Alternative model 5 - K(1430) with free mass and width",
-    #"Alternative model 6 - Both K(700) and K(1430) Relativistic BW",
-    #"Alternative model 7 - Both K(700) and K(1430) with free mass and width",
-    #"Alternative model 8 - K(700) Relativistic BW with free mass and width",
-    #"Alternative model 9 - Both K(700) and K(1430) Relativistic BW with free mass and width",
-    #"Alternative model 10 - L(1800) resonance removed",
-    #"Alternative model 11 - L(1890) resonance removed",
-    #"Alternative model 13 - K(1430) m=1370 MeV, Γ=360 MeV",
-    #"Alternative model 14 - K(1430) m=1430 MeV, Γ=180 MeV",
-    #"Alternative model 12 - K(1430) m=1370 MeV, Γ=180 MeV",
-    #"Alternative model 15 - K(1430) m=1430 MeV, Γ=360 MeV",
-    #"Alternative model 16 - Multiple K mass variations 1",
-    #"Alternative model 17 - Multiple K mass variations 2",
-    #"Alternative model 18 - Multiple K mass variations 3",
-    #"Alternative model 19 - Multiple K mass variations 4",
-    #"Alternative model 20 - L(1405) free Flatte widths",
-    #"Alternative model 21 - L(1600) with free mass and width",
-    #"Alternative model 22 - L(1600) with free mass and width",
-    #"Alternative model 23 - L(1710) with free mass and width",
-    #"Alternative model 24 - L(1800) contribution added with free mass and width",
-    #"Alternative model 25 - L(1830) contribution added with free width",
-    #"Alternative model 26 - L(1890) with free mass and width",
-    #"Alternative model 27 - L(2000) with free mass and width",
-    #"Alternative model 28 - L(2100) contribution added with PDG values",
-    #"Alternative model 29 - L(2110) contribution added with PDG values",
-    #"Alternative model 30 - S(1670) contribution added with PDG values",
-    #"Alternative model 31 - S(1775) contribution added with PDG values",
-    #"Alternative model 32 - Free radial parameter rXic"
+    "Alternative model 30 - S(1670) contribution added with PDG values",
+    "Alternative model 31 - S(1775) contribution added with PDG values",
 ]
 
-global i = 0
+global i = 30  # Start from model 30
 
 for model in list
     global i
@@ -92,7 +59,8 @@ for model in list
         
         # Fix fixed parameters by adding dummy uncertainties
         if haskey(defaultparameters, "parameters")
-            for (param_name, param_value) in defaultparameters["parameters"]
+            params = defaultparameters["parameters"]
+            for (param_name, param_value) in params
                 if isa(param_value, String)
                     # Check if it's a fixed parameter (just a number without ±)
                     if !contains(param_value, "±") && !contains(param_value, "+/-")
@@ -100,8 +68,8 @@ for model in list
                             # Try to parse as a number
                             val = parse(Float64, strip(param_value))
                             # Convert to measured parameter format with tiny uncertainty
-                            defaultparameters["parameters"][param_name] = "$val ± 0.0001"
-                            println("  Fixed parameter $param_name: $param_value → $(defaultparameters["parameters"][param_name])")
+                            params[param_name] = "$val ± 0.0001"
+                            println("  Fixed parameter $param_name: $param_value → $(params[param_name])")
                         catch
                             # If parsing fails, leave as is
                             println("  Warning: Could not parse parameter $param_name: $param_value")
@@ -110,8 +78,6 @@ for model in list
                 end
             end
         end
-
-
 
     # -------------------------------------------------------------
     # Parse model dictionaries and convert to standard convention
@@ -136,13 +102,13 @@ for model in list
         return Dict{String, Any}(
             "type" => "BreitWignerMinL",
             "mass" => m,
-            "width" => Γ₀,  # ✅ Verwende die berechnete effektive Breite!
+            "width" => Γ₀,
             "l" => l,
             "minL" => minL,
             "m1" => m1,
             "m2" => m2,
             "mk" => mk, 
-            "m0" => m0,  
+            "m0" => m0,
             
                 )
     end
@@ -173,6 +139,8 @@ for model in list
                 "m_12_sq"
             elseif contains(lineshape_name, "K")
                 "m_23_sq"
+            elseif contains(lineshape_name, "S") || contains(lineshape_name, "Σ")
+                "m_31_sq"  # Sigma resonances decay to pK
             else
                 "m_31_sq"
             end
@@ -197,7 +165,7 @@ for model in list
             lineshape_dict = Dict{String, Any}(
                 "name" => scattering_key,
                 "type" => "BuggBreitWignerMinL",
-                "x" => "m_31_sq",
+                "x" => "m_23_sq",
                 "mass" => m,
                 "width" => Γ,
                 "gamma" => γ,
@@ -299,7 +267,6 @@ for model in list
             end
             
             return (; scattering=scattering_key, FF_production=ff_decay, FF_decay=ff_resonance), appendix
-            #return (; scattering=scattering_key, FF_production=ff_resonance, FF_decay=ff_decay), appendix
 
         else
             return (; scattering=scattering_key, FF_production="", FF_decay=""), appendix
@@ -379,7 +346,6 @@ for model in list
                                     end
                                 end
                                 vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_b_decay_l$(0)" : ""
-                                #vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_resonance_l$(l_val)" : ""
                             end
                         elseif vertex[:type] == "parity"
                             # Add form factor for parity vertices (resonance)
@@ -395,7 +361,6 @@ for model in list
                                     end
                                 end
                                 vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_resonance_l$(l_val)" : ""
-                                #vertex[:formfactor] = l_val > 0 ? "BlattWeisskopf_b_decay_l$(0)" : ""
                             end
                         end
                     end
@@ -506,6 +471,8 @@ for model in list
                 "validation_point_m12sq" 
             elseif startswith(func_name, "K")
                 "validation_point_m23sq"
+            elseif startswith(func_name, "S") || startswith(func_name, "Σ")
+                "validation_point_m31sq"  # Sigma resonances decay to pK
             else
                 "validation_point_m31sq"
             end
@@ -631,6 +598,8 @@ for model in list
     catch e
         println("❌ Failed to process model $i: $model")
         println("Error: $e")
+        println("Stacktrace:")
+        println(stacktrace(catch_backtrace()))
         i=i+1
         continue
     end

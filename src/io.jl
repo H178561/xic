@@ -122,14 +122,45 @@ function parse_model_dictionaries(modeldict; particledict)
     # 3) get parameters (exclude rXic which is a global form factor parameter)
     defaultparameters = modeldict["parameters"]
     shapeparameters = filter(x -> x[1] != 'A' && x != "rXic", keys(defaultparameters))
+    
+    # Special handling for Flatte1405 with separate G1 and G2
+    # Collect G1 and G2 pairs first
+    flatte_params = Dict{String, Tuple{Float64, Float64}}()
+    for parname in shapeparameters
+        if startswith(parname, "G1")
+            resonance = parname[3:end]
+            g2_key = "G2" * resonance
+            if g2_key in shapeparameters
+                g1_val = MeasuredParameter(defaultparameters[parname]).val
+                g2_val = MeasuredParameter(defaultparameters[g2_key]).val
+                flatte_params[resonance] = (g1_val, g2_val)
+            end
+        end
+    end
+    
+    # Filter out G1 and G2 from regular parameter updates
+    shapeparameters_filtered = filter(x -> !startswith(x, "G1") && !startswith(x, "G2"), shapeparameters)
+    
     parameterupdates = [
         replacementpair(parname, defaultparameters[parname])
-        for parname in shapeparameters]
+        for parname in shapeparameters_filtered]
 
     for (p, u) in parameterupdates
         BW = isobars[p].Xlineshape
         isobars[p] = merge(isobars[p],
             (Xlineshape=updatepars(BW, merge(BW.pars, u)),))
+    end
+    
+    # Apply Flatte parameters (g1, g2) separately
+    for (resonance, (g1, g2)) in flatte_params
+        if haskey(isobars, resonance)
+            BW = isobars[resonance].Xlineshape
+            # Create new pars tuple with (m, g1, g2)
+            m = BW.pars[1]  # Keep existing mass
+            new_pars = (m, g1, g2)
+            isobars[resonance] = merge(isobars[resonance],
+                (Xlineshape=updatepars(BW, new_pars),))
+        end
     end
 
     # 3) get couplings
