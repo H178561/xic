@@ -44,7 +44,7 @@ end
 
 # list of models
 list = [
-    "Default amplitude model",
+    #"Default amplitude model",
     #"Alternative model 1 - Delta resonances with free mass and width",
     #"Alternative model 2 - K(700) Relativistic BW",
     #"Alternative model 3 - K(700) with free mass and width",
@@ -66,20 +66,19 @@ list = [
     #"Alternative model 19 - Multiple K mass variations 4",
     #"Alternative model 20 - L(1405) free Flatte widths",
     #"Alternative model 21 - L(1600) with free mass and width",
-    #"Alternative model 22 - L(1600) with free mass and width",
-    #"Alternative model 23 - L(1710) with free mass and width",
-    #"Alternative model 24 - L(1800) contribution added with free mass and width",
-    #"Alternative model 25 - L(1830) contribution added with free width",
-    #"Alternative model 26 - L(1890) with free mass and width",
-    #"Alternative model 27 - L(2000) with free mass and width",
-    #"Alternative model 28 - L(2100) contribution added with PDG values",
-    #"Alternative model 29 - L(2110) contribution added with PDG values",
-    #"Alternative model 30 - S(1670) contribution added with PDG values",
-    #"Alternative model 31 - S(1775) contribution added with PDG values",
-    #"Alternative model 32 - Free radial parameter rXic"
+    #"Alternative model 22 - L(1710) with free mass and width",
+    #"Alternative model 23 - L(1800) contribution added with free mass and width",
+    #"Alternative model 24 - L(1830) contribution added with free width",
+    #"Alternative model 25 - L(1890) with free mass and width",
+    #"Alternative model 26 - L(2000) with free mass and width",
+    #"Alternative model 27 - L(2100) contribution added with PDG values",
+    #"Alternative model 28 - L(2110) contribution added with PDG values",
+    #"Alternative model 29 - S(1670) contribution added with PDG values",
+    #"Alternative model 30 - S(1775) contribution added with PDG values",
+    "Alternative model 31 - Free radial parameter rXic"
 ]
 
-global i = 0
+global i = 31
 
 for model in list
     global i

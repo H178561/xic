@@ -42,11 +42,11 @@ end
 
 # list of models
 list = [
-    "Alternative model 30 - S(1670) contribution added with PDG values",
-    "Alternative model 31 - S(1775) contribution added with PDG values",
+    "Alternative model 29 - S(1670) contribution added with PDG values",
+    "Alternative model 30 - S(1775) contribution added with PDG values",
 ]
 
-global i = 30  # Start from model 30
+global i = 29  # Start from model 29
 
 for model in list
     global i

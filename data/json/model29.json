@@ -136,7 +136,7 @@
                                 "parametrization": "L(1405)_Flatte1405"
                             }
                         ],
-                        "weight": "-0.7578261363874962 + 0.5260421903687954i",
+                        "weight": "-0.6413090809835769 + 0.4888405955037899i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -187,7 +187,7 @@
                                 "parametrization": "L(1405)_Flatte1405"
                             }
                         ],
-                        "weight": "1.6560264038693646 + 0.8356467731909817i",
+                        "weight": "1.7804991176684137 + 0.720497262301877i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -238,7 +238,7 @@
                                 "parametrization": "L(1520)_BWminL"
                             }
                         ],
-                        "weight": "-0.0729355 - 0.099016i",
+                        "weight": "-0.055274 - 0.0943475i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -289,7 +289,7 @@
                                 "parametrization": "L(1520)_BWminL"
                             }
                         ],
-                        "weight": "-0.058018 + 0.323554i",
+                        "weight": "-0.0387385 + 0.335886i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -340,7 +340,7 @@
                                 "parametrization": "L(1600)_BWminL"
                             }
                         ],
-                        "weight": "-0.3944786097680075 - 0.8955889221389464i",
+                        "weight": "-0.4454185822846864 - 0.8916397307660195i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -391,7 +391,7 @@
                                 "parametrization": "L(1600)_BWminL"
                             }
                         ],
-                        "weight": "-0.9904437613012158 - 0.03873460236661788i",
+                        "weight": "-0.9391332648311953 + 0.05461975620597367i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -442,7 +442,7 @@
                                 "parametrization": "L(1670)_L1670Flatte"
                             }
                         ],
-                        "weight": "0.14276203069443918 + 0.0028659037841490768i",
+                        "weight": "0.11694556211331834 - 0.01835295650569684i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -493,7 +493,7 @@
                                 "parametrization": "L(1670)_L1670Flatte"
                             }
                         ],
-                        "weight": "0.2916829614530132 + 0.10471190769200987i",
+                        "weight": "0.26314130333719943 + 0.10414197962637352i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -544,7 +544,7 @@
                                 "parametrization": "L(1690)_BWminL"
                             }
                         ],
-                        "weight": "0.1136475 - 0.197502i",
+                        "weight": "-0.750702 - 0.495311i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -595,7 +595,7 @@
                                 "parametrization": "L(1690)_BWminL"
                             }
                         ],
-                        "weight": "-0.4336845 + 0.2514215i",
+                        "weight": "-1.2229525 - 0.2967085i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -646,7 +646,7 @@
                                 "parametrization": "L(1710)_BWminL"
                             }
                         ],
-                        "weight": "-1.1438279500626394 - 0.33823038664496125i",
+                        "weight": "-1.1003366403789796 - 0.2288445031293083i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -697,7 +697,7 @@
                                 "parametrization": "L(1710)_BWminL"
                             }
                         ],
-                        "weight": "-0.15115680240068588 + 0.4354278705733017i",
+                        "weight": "-0.1369319352835561 + 0.3073086071036735i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -748,7 +748,7 @@
                                 "parametrization": "L(1800)_BWminL"
                             }
                         ],
-                        "weight": "0.15038676311597374 - 0.35910842146627525i",
+                        "weight": "0.16199321382236972 - 0.2307635909334486i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -799,7 +799,7 @@
                                 "parametrization": "L(1800)_BWminL"
                             }
                         ],
-                        "weight": "-0.4202802291067234 - 0.20820476329325413i",
+                        "weight": "-0.28889978916226294 - 0.3494047951080522i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -850,7 +850,7 @@
                                 "parametrization": "L(1810)_BWminL"
                             }
                         ],
-                        "weight": "0.04205517581106991 - 0.8593539422438229i",
+                        "weight": "-0.01833174330226124 - 0.8033369430382248i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -901,7 +901,7 @@
                                 "parametrization": "L(1810)_BWminL"
                             }
                         ],
-                        "weight": "0.22224295422015067 - 0.08904595695482191i",
+                        "weight": "0.20363119663253956 - 0.21127714225750968i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -952,7 +952,7 @@
                                 "parametrization": "L(1820)_BWminL"
                             }
                         ],
-                        "weight": "-0.10510393062821201 - 0.4581925698226312i",
+                        "weight": "-0.10358769647742921 - 0.45429951412476777i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1003,7 +1003,7 @@
                                 "parametrization": "L(1820)_BWminL"
                             }
                         ],
-                        "weight": "0.18386890630056696 + 0.0018130306579500158i",
+                        "weight": "0.1823943134754115 - 0.002711993393551442i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1054,7 +1054,7 @@
                                 "parametrization": "L(1830)_BWminL"
                             }
                         ],
-                        "weight": "-0.12769026729812524 - 0.15737359224946226i",
+                        "weight": "-0.17330466528823357 - 0.09600448448206297i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1105,7 +1105,7 @@
                                 "parametrization": "L(1830)_BWminL"
                             }
                         ],
-                        "weight": "0.20299860469512265 - 0.022691256480562437i",
+                        "weight": "0.17168391957509205 - 0.019798817342625966i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1156,7 +1156,7 @@
                                 "parametrization": "L(1890)_BWminL"
                             }
                         ],
-                        "weight": "-0.0551005 + 0.282736i",
+                        "weight": "0.0087055 + 0.238176i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1207,7 +1207,7 @@
                                 "parametrization": "L(1890)_BWminL"
                             }
                         ],
-                        "weight": "-0.1766955 + 0.1056565i",
+                        "weight": "-0.1025995 + 0.115135i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1258,7 +1258,7 @@
                                 "parametrization": "L(2000)_BWminL"
                             }
                         ],
-                        "weight": "-0.33537508946253 - 1.0923491621786963i",
+                        "weight": "-0.44163485389855717 - 1.263457689517342i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1309,7 +1309,7 @@
                                 "parametrization": "L(2000)_BWminL"
                             }
                         ],
-                        "weight": "-1.00645902278831 - 1.9352140813920302i",
+                        "weight": "-0.9719592829342183 - 1.9001691622096437i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1352,15 +1352,15 @@
                     {
                         "propagators": [
                             {
-                                "spin": "5/2",
+                                "spin": "3/2",
                                 "node": [
-                                    3,
-                                    1
+                                    1,
+                                    2
                                 ],
-                                "parametrization": "L(2110)_BWminL"
+                                "parametrization": "S(1670)_BWminL"
                             }
                         ],
-                        "weight": "-0.11089411613186098 + 0.3015387193092567i",
+                        "weight": "-0.88523 + 0.000833i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1370,48 +1370,48 @@
                                 ],
                                 "node": [
                                     [
-                                        3,
-                                        1
+                                        1,
+                                        2
                                     ],
-                                    2
+                                    3
                                 ],
                                 "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
                                 "helicities": [
-                                    "0",
-                                    "1/2"
+                                    "1/2",
+                                    "0"
                                 ],
                                 "parity_factor": "-",
                                 "node": [
-                                    3,
-                                    1
+                                    1,
+                                    2
                                 ],
-                                "formfactor": "BlattWeisskopf_resonance_l3"
+                                "formfactor": "BlattWeisskopf_resonance_l2"
                             }
                         ],
                         "topology": [
                             [
-                                3,
-                                1
+                                1,
+                                2
                             ],
-                            2
+                            3
                         ],
-                        "name": "L(2110)"
+                        "name": "S(1670)"
                     },
                     {
                         "propagators": [
                             {
-                                "spin": "5/2",
+                                "spin": "3/2",
                                 "node": [
-                                    3,
-                                    1
+                                    1,
+                                    2
                                 ],
-                                "parametrization": "L(2110)_BWminL"
+                                "parametrization": "S(1670)_BWminL"
                             }
                         ],
-                        "weight": "0.0808454089605588 + 0.0953590439348396i",
+                        "weight": "-0.8790285 - 0.302705i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1421,35 +1421,35 @@
                                 ],
                                 "node": [
                                     [
-                                        3,
-                                        1
+                                        1,
+                                        2
                                     ],
-                                    2
+                                    3
                                 ],
                                 "formfactor": "BlattWeisskopf_b_decay_l0"
                             },
                             {
                                 "type": "parity",
                                 "helicities": [
-                                    "0",
-                                    "1/2"
+                                    "1/2",
+                                    "0"
                                 ],
                                 "parity_factor": "-",
                                 "node": [
-                                    3,
-                                    1
+                                    1,
+                                    2
                                 ],
-                                "formfactor": "BlattWeisskopf_resonance_l3"
+                                "formfactor": "BlattWeisskopf_resonance_l2"
                             }
                         ],
                         "topology": [
                             [
-                                3,
-                                1
+                                1,
+                                2
                             ],
-                            2
+                            3
                         ],
-                        "name": "L(2110)"
+                        "name": "S(1670)"
                     },
                     {
                         "propagators": [
@@ -1462,7 +1462,7 @@
                                 "parametrization": "D(1232)_BWminL"
                             }
                         ],
-                        "weight": "-0.8616705 - 0.082904i",
+                        "weight": "-0.8707485 + 0.075005i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1513,7 +1513,7 @@
                                 "parametrization": "D(1232)_BWminL"
                             }
                         ],
-                        "weight": "-1.8975295 + 1.123148i",
+                        "weight": "-1.7559945 + 1.2142785i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1564,7 +1564,7 @@
                                 "parametrization": "D(1600)_BWminL"
                             }
                         ],
-                        "weight": "0.070215 - 1.5291805i",
+                        "weight": "-0.0548825 - 1.41758i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1615,7 +1615,7 @@
                                 "parametrization": "D(1600)_BWminL"
                             }
                         ],
-                        "weight": "0.1289 - 1.0497775i",
+                        "weight": "0.26768 - 1.020805i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1666,7 +1666,7 @@
                                 "parametrization": "D(1620)_BWminL"
                             }
                         ],
-                        "weight": "-0.004903785527528706 + 0.7739969613664514i",
+                        "weight": "0.06243682167199096 + 0.8526201643665835i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1717,7 +1717,7 @@
                                 "parametrization": "D(1620)_BWminL"
                             }
                         ],
-                        "weight": "-0.5211921449566368 - 0.48842340250288985i",
+                        "weight": "-0.5155331693868009 - 0.5421684676205358i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1768,7 +1768,7 @@
                                 "parametrization": "D(1700)_BWminL"
                             }
                         ],
-                        "weight": "-0.8089355 + 0.884646i",
+                        "weight": "-0.6617645 + 1.03765i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1819,7 +1819,7 @@
                                 "parametrization": "D(1700)_BWminL"
                             }
                         ],
-                        "weight": "-0.6150115 + 0.5753985i",
+                        "weight": "-0.5332695 + 0.509897i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1870,7 +1870,7 @@
                                 "parametrization": "K(700)_BuggBWminL"
                             }
                         ],
-                        "weight": "-4.349816 + 3.432087i",
+                        "weight": "-3.982178 + 3.290984i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1921,7 +1921,7 @@
                                 "parametrization": "K(700)_BuggBWminL"
                             }
                         ],
-                        "weight": "-2.362131 - 0.55264i",
+                        "weight": "-2.261809 - 0.51502i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -1972,7 +1972,7 @@
                                 "parametrization": "K(892)_BWminL"
                             }
                         ],
-                        "weight": "-0.07689670500309707 - 0.7315102966167554i",
+                        "weight": "-0.17255440700351105 - 0.731874604636614i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -2074,7 +2074,7 @@
                                 "parametrization": "K(892)_BWminL"
                             }
                         ],
-                        "weight": "1.110733583329654 + 0.37558251591538894i",
+                        "weight": "1.1157553759710654 + 0.3280100084347021i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -2125,7 +2125,7 @@
                                 "parametrization": "K(892)_BWminL"
                             }
                         ],
-                        "weight": "-0.6247368698836336 + 0.069187346858608i",
+                        "weight": "-0.6262200827251818 + 0.14115925406551758i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -2176,7 +2176,7 @@
                                 "parametrization": "K2(1430)_BWminL"
                             }
                         ],
-                        "weight": "-0.5923156242686832 + 0.05413744180324741i",
+                        "weight": "-0.6839778644431411 + 0.15974156581741647i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -2227,7 +2227,7 @@
                                 "parametrization": "K2(1430)_BWminL"
                             }
                         ],
-                        "weight": "-0.3103805461120268 + 1.052872284603978i",
+                        "weight": "-0.24626353292519781 + 1.1807928142471904i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -2278,7 +2278,7 @@
                                 "parametrization": "K(1430)_BuggBWminL"
                             }
                         ],
-                        "weight": "-1.576686 + 3.921149i",
+                        "weight": "-1.901627 + 3.843361i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -2329,7 +2329,7 @@
                                 "parametrization": "K2(1430)_BWminL"
                             }
                         ],
-                        "weight": "0.6774820869685043 + 0.2608283853034405i",
+                        "weight": "0.6739312110202346 + 0.297901497943196i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -2380,7 +2380,7 @@
                                 "parametrization": "K2(1430)_BWminL"
                             }
                         ],
-                        "weight": "0.3700222928486877 - 0.18867181331030874i",
+                        "weight": "0.48550134026509134 - 0.07212795032301972i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -2431,7 +2431,7 @@
                                 "parametrization": "K(1430)_BuggBWminL"
                             }
                         ],
-                        "weight": "1.211942 + 1.203304i",
+                        "weight": "1.325148 + 1.139093i",
                         "vertices": [
                             {
                                 "type": "helicity",
@@ -2490,11 +2490,6 @@
             },
             {
                 "point": "validation_point_m31sq",
-                "distribution": "L(2110)_BWminL",
-                "value": "0.44836770391620867 + 0.014698339303695206im"
-            },
-            {
-                "point": "validation_point_m31sq",
                 "distribution": "L(1520)_BWminL",
                 "value": "-2.697882852177437 + 2.2818374969100024im"
             },
@@ -2550,18 +2545,23 @@
             },
             {
                 "point": "validation_point_m31sq",
+                "distribution": "S(1670)_BWminL",
+                "value": "-2.4995823800667973 + 1.0113705170258984im"
+            },
+            {
+                "point": "validation_point_m31sq",
                 "distribution": "L(1670)_L1670Flatte",
                 "value": "7.1545253442801355 - 3.3649086319352994im"
             },
             {
                 "point": "validation_point_m23sq",
                 "distribution": "K(700)_BuggBWminL",
-                "value": "-0.04429625604279735 + 0.2502238933391144im"
+                "value": "-0.07045891409329988 + 0.3126484798256263im"
             },
             {
                 "point": "validation_point_m23sq",
                 "distribution": "K(1430)_BuggBWminL",
-                "value": "1.4035970324057014 + 0.5056076629434946im"
+                "value": "1.4052578537566083 + 0.5035947917891794im"
             },
             {
                 "point": "validation_point_m23sq",
@@ -2603,19 +2603,6 @@
             "mass": 1.4051,
             "m0": 2.46794,
             "type": "Flatte1405"
-        },
-        {
-            "mk": 0.13957060999999998,
-            "m2": 0.93827208,
-            "x": "m_31_sq",
-            "minL": 2,
-            "m1": 0.49367700000000003,
-            "width": 0.2,
-            "l": 3,
-            "name": "L(2110)_BWminL",
-            "mass": 2.11,
-            "m0": 2.46794,
-            "type": "BreitWignerMinL"
         },
         {
             "mk": 0.13957060999999998,
@@ -2773,6 +2760,19 @@
             "type": "BreitWignerMinL"
         },
         {
+            "mk": 0.49367700000000003,
+            "m2": 0.13957060999999998,
+            "x": "m_31_sq",
+            "minL": 1,
+            "m1": 0.93827208,
+            "width": 0.06,
+            "l": 2,
+            "name": "S(1670)_BWminL",
+            "mass": 1.67,
+            "m0": 2.46794,
+            "type": "BreitWignerMinL"
+        },
+        {
             "mk": 0.13957060999999998,
             "m2": 0.93827208,
             "x": "m_31_sq",
@@ -2788,13 +2788,13 @@
         {
             "mk": 0.93827208,
             "m2": 0.49367700000000003,
-            "x": "m_31_sq",
+            "x": "m_23_sq",
             "minL": 0,
             "m1": 0.13957060999999998,
             "width": 0.468,
             "l": 0,
             "name": "K(700)_BuggBWminL",
-            "gamma": -0.996271,
+            "gamma": -0.823838,
             "mass": 0.845,
             "m0": 2.46794,
             "type": "BuggBreitWignerMinL"
@@ -2808,13 +2808,13 @@
         {
             "mk": 0.93827208,
             "m2": 0.49367700000000003,
-            "x": "m_31_sq",
+            "x": "m_23_sq",
             "minL": 0,
             "m1": 0.13957060999999998,
             "width": 0.27,
             "l": 0,
             "name": "K(1430)_BuggBWminL",
-            "gamma": 0.067565,
+            "gamma": 0.071259,
             "mass": 1.425,
             "m0": 2.46794,
             "type": "BuggBreitWignerMinL"
