@@ -1,54 +1,251 @@
 import Pkg
-Pkg.activate(dirname(@__DIR__))  # Geht ein Verzeichnis hoch zum Hauptprojekt
+Pkg.activate(dirname(@__DIR__))
 Pkg.instantiate()
 
+using Lc2ppiKSemileptonicModelLHCb
+using Lc2ppiKSemileptonicModelLHCb.ThreeBodyDecays
 using ThreeBodyDecaysIO
 using ThreeBodyDecaysIO.ThreeBodyDecays
-using ThreeBodyDecaysIO.HadronicLineshapes
 using ThreeBodyDecaysIO.Parameters
-using ThreeBodyDecaysIO.DataFrames
-using ThreeBodyDecaysIO.JSON
+using YAML
 using Measurements
-using Statistics
 using QuadGK
-using Plots
-using StatsBase
-using FHist
-using CSV
+using Printf
+using Statistics
+using DataFrames
 
-# Load the JSON model
-input = open(
-    #joinpath("/home/hvdsmagt/ThreeBodyDecays.jl/IO.jl/", "lc2ppik-lhcb-2683025.json"),
-    joinpath(dirname(@__DIR__), "data", "xic2pKpi-model_test.json")
-) do io
-    JSON.parse(io)
+# ============================================================
+# Load model from YAML
+# ============================================================
+function load_model_from_yaml(model_name::String)
+    particledict = YAML.load_file(joinpath(dirname(@__DIR__), "data", "xic-particle-definitions.yaml"))
+    modelparameters = YAML.load_file(joinpath(dirname(@__DIR__), "data", "xic-model-definitions.yaml"))
+    
+    defaultparameters = modelparameters[model_name]
+    
+    # Fix fixed parameters by adding dummy uncertainties
+    if haskey(defaultparameters, "parameters")
+        params = defaultparameters["parameters"]
+        for (param_name, param_value) in params
+            if isa(param_value, String)
+                if !contains(param_value, "±") && !contains(param_value, "+/-")
+                    try
+                        val = parse(Float64, strip(param_value))
+                        params[param_name] = "$val ± 0.0001"
+                    catch
+                        # If parsing fails, leave as is
+                    end
+                end
+            end
+        end
+    end
+    
+    # Parse model
+    (; chains, couplings, isobarnames) = parse_model_dictionaries(defaultparameters; particledict)
+    
+    # Create model (0: Xic, 1:p, 2:pi, 3:K)
+    model = Lc2ppiKModel(; chains, couplings, isobarnames)
+    
+    return model
 end
 
-workspace = Dict{String,Any}()
-
-@unpack functions = input
-for fn in functions
-    @unpack name, type = fn
-    instance_type = eval(Symbol(type))
-    workspace[name] = dict2instance(instance_type, fn)
-end
-
-@unpack distributions = input
-for dist in distributions
-    @unpack name, type = dist
-    instance_type = eval(Symbol(type))
-    workspace[name] = dict2instance(instance_type, distributions[1]; workspace)
-end
-
-# Get the model
-model_dist = [v for (k, v) in workspace if v isa HadronicUnpolarizedIntensity] |> first
-
-# Test 1: Simple amplitude and intensity calculation
-function test_simple_amplitude()
-    model = model_dist.model
+# ============================================================
+# Calculate Fit Fractions for each resonance
+# ============================================================
+function calculate_fit_fractions(model; num_points=100000)
+    # Initialize
     ms = masses(model)
-    println("Masses: ", ms)
+    chain_names = Set(model.names) |> collect |> sort
+    
+    println("Generating $num_points random points...")
+    
+    # Pre-create component models (this is the optimization!)
+    println("Creating component models for each resonance...")
+    component_models = Dict(name => model[model.names.==name] for name in chain_names)
+    println("  Created $(length(component_models)) component models")
+    
+    # Storage for statistics
+    all_intensities = Dict(name => Float64[] for name in chain_names)
+    all_model_intensities = Float64[]
+    
+    # Generate random points across Dalitz plot
+    x2 = rand(num_points, 2)
+    println("Generated random points, creating invariants...")
+    
+    data = map(eachslice(x2; dims=1)) do (x, y)
+        σ1 = lims1(ms)[1] + x * diff(lims1(ms) |> collect)[1]
+        σ2 = lims2(ms)[1] + y * diff(lims2(ms) |> collect)[1]
+        σs = Invariants(ms; σ1, σ2)
+    end
+    
+    println("Created $(length(data)) invariant points, filtering...")
+    
+    # Filter physically allowed points
+    filter!(data) do σs
+        Kibble(σs, ms^2) < 0
+    end
+    
+    println("Filtered to $(length(data)) physical points, calculating intensities...")
+    
+    # Calculate intensities for each event
+    n_processed = 0
+    for σs in data
+        # Total model intensity
+        model_intensity = unpolarized_intensity(model, σs; refζs = (1, 1, 1, 1))
+        push!(all_model_intensities, model_intensity)
+        
+        # Component intensities (using pre-created models)
+        for name in chain_names
+            component_intensity = unpolarized_intensity(component_models[name], σs; refζs = (1, 1, 1, 1))
+            push!(all_intensities[name], component_intensity)
+        end
+        
+        n_processed += 1
+        if n_processed % 1000 == 0
+            println("  Processed $n_processed / $(length(data)) points...")
+        end
+    end
+    
+    # Print final statistics in same format as the C++ version
+    println("Component intensities: N = $(length(all_model_intensities))")
+    
+    # Calculate and print statistics for each component
+    for name in chain_names
+        # Mean of absolute intensities
+        mean_value = mean(all_intensities[name])
+        model_mean = mean(all_model_intensities)
+        
+        # Standard error calculation
+        variance = sum((val - mean_value)^2 for val in all_intensities[name]) / length(all_intensities[name])
+        std_error = sqrt(variance / length(all_intensities[name]))
+        
+        # Print formatted output
+        println("$name Mean: $(round((mean_value/model_mean)*100, digits=3)) ± $(round((std_error/model_mean)*100, digits=3)))")
+    end
+    
+    # Calculate final fit fractions for return value
+    _int_i = map(chain_names) do name
+        _intensities = all_intensities[name]
+        _value = mean(_intensities)
+        _err = sqrt(cov(_intensities, _intensities) / length(_intensities))
+        _value ± _err
+    end
+    _int0 = mean(all_model_intensities)
+    ff = round.(_int_i ./ _int0 .* 100; digits=2)
+    
+    return DataFrame("Resonance" => chain_names, "Fit Fraction [%]" => ff)
+end
 
+# ============================================================
+# Calculate Fit Fractions using Grid method (200x200)
+# ============================================================
+function calculate_fit_fractions_grid(model; n_bins=200)
+    # Initialize
+    ms = masses(model)
+    chain_names = Set(model.names) |> collect |> sort
+    
+    println("Creating $n_bins × $n_bins grid over Dalitz plot...")
+    
+    # Pre-create component models
+    println("Creating component models for each resonance...")
+    component_models = Dict(name => model[model.names.==name] for name in chain_names)
+    println("  Created $(length(component_models)) component models")
+    
+    # Storage for statistics
+    all_intensities = Dict(name => Float64[] for name in chain_names)
+    all_model_intensities = Float64[]
+    
+    # Get kinematic limits
+    σ1_min, σ1_max = lims1(ms)
+    σ2_min, σ2_max = lims2(ms)
+    
+    println("Kinematic limits:")
+    println("  σ1: [$σ1_min, $σ1_max] GeV²")
+    println("  σ2: [$σ2_min, $σ2_max] GeV²")
+    
+    # Create grid
+    σ1_range = range(σ1_min, σ1_max, length=n_bins)
+    σ2_range = range(σ2_min, σ2_max, length=n_bins)
+    
+    println("Calculating intensities on grid...")
+    
+    n_valid = 0
+    n_total = n_bins * n_bins
+    
+    for (i, σ1) in enumerate(σ1_range)
+        for (j, σ2) in enumerate(σ2_range)
+            try
+                σs = Invariants(ms; σ1, σ2)
+                
+                # Check if point is physical (inside Dalitz plot)
+                if Kibble(σs, ms^2) < 0
+                    n_valid += 1
+                    
+                    # Total model intensity
+                    model_intensity = unpolarized_intensity(model, σs; refζs = (1, 1, 1, 1))
+                    push!(all_model_intensities, model_intensity)
+                    
+                    # Component intensities (using pre-created models)
+                    for name in chain_names
+                        component_intensity = unpolarized_intensity(component_models[name], σs; refζs = (1, 1, 1, 1))
+                        push!(all_intensities[name], component_intensity)
+                    end
+                end
+            catch e
+                # Skip invalid points
+                continue
+            end
+        end
+        
+        # Progress indicator every 10 rows
+        if i % 10 == 0
+            println("  Processed row $i / $n_bins ($(n_valid) valid points so far)")
+        end
+    end
+    
+    println()
+    println("Grid calculation complete:")
+    println("  Total grid points: $n_total")
+    println("  Valid physical points: $n_valid")
+    println("  Efficiency: $(round(n_valid/n_total*100, digits=2))%")
+    println()
+    
+    # Print final statistics
+    println("Component intensities: N = $(length(all_model_intensities))")
+    
+    # Calculate and print statistics for each component
+    for name in chain_names
+        # Mean of absolute intensities
+        mean_value = mean(all_intensities[name])
+        model_mean = mean(all_model_intensities)
+        
+        # Standard error calculation
+        variance = sum((val - mean_value)^2 for val in all_intensities[name]) / length(all_intensities[name])
+        std_error = sqrt(variance / length(all_intensities[name]))
+        
+        # Print formatted output
+        println("$name Mean: $(round((mean_value/model_mean)*100, digits=3)) ± $(round((std_error/model_mean)*100, digits=3)))")
+    end
+    
+    # Calculate final fit fractions for return value
+    _int_i = map(chain_names) do name
+        _intensities = all_intensities[name]
+        _value = mean(_intensities)
+        _err = sqrt(cov(_intensities, _intensities) / length(_intensities))
+        _value ± _err
+    end
+    _int0 = mean(all_model_intensities)
+    ff = round.(_int_i ./ _int0 .* 100; digits=2)
+    
+    return DataFrame("Resonance" => chain_names, "Fit Fraction [%]" => ff)
+end
+
+# ============================================================
+# Test amplitude at a single point
+# ============================================================
+function test_simple_amplitude(model)
+    ms = masses(model)
+    
     # Define a specific point
     σ1 = 1.4  # GeV²
     σ2 = 3.2  # GeV²
@@ -60,7 +257,7 @@ function test_simple_amplitude()
         amplitude_value = amplitude(model, σs; refζs = (1, 1, 1, 1))
         intensity_value = unpolarized_intensity(model, σs; refζs = (1, 1, 1, 1))
 
-        println("σ1 = $σ1, σ2 = $σ2, σs = $σs")
+        println("Test point: σ1 = $σ1 GeV², σ2 = $σ2 GeV², σs = $σs")
         println("Amplitude: $amplitude_value")
         println("Intensity: $intensity_value")
     else
@@ -68,130 +265,113 @@ function test_simple_amplitude()
     end
 end
 
-# Test 2: Individual resonance contributions
-function test_individual_resonances()
-    model = model_dist.model
-    ms = masses(model)
-
-    # Define a specific point
-    σ1 = 1.4  # GeV²
-    σ2 = 3.2  # GeV²
-    σs = Invariants(ms; σ1, σ2)
-
-  
-    print("Testing with σ1 = $σ1, σ2 = $σ2 and σs = $σs\n")
-
-    # Calculate σ3 explicitly
-    m0² = ms.m0^2
-    m1² = ms.m1^2
-    m2² = ms.m2^2
-    m3² = ms.m3^2
-    σ3 = m0² + m1² + m2² + m3² - σ1 - σ2
-
-    if Kibble(σs, ms^2) < 0
-        println("=== Test Point ===")
-        println("σ1 = $σ1, σ2 = $σ2, σ3 = $σ3")
-        println("Masses: m0=$(ms.m0), m1=$(ms.m1), m2=$(ms.m2), m3=$(ms.m3)")
-        println()
-
-        # Test individual resonances
-        chain_names = Set(model.names) |> collect |> sort
-
-        println("=== Individual Resonance Contributions ===")
-        for name in chain_names
-            _model = model[model.names.==name]
-
-            # Amplitude for this resonance
-            amplitude_val = amplitude(_model, σs; refζs = (1, 1, 1, 1))
-
-
-            # Intensity for this resonance
-            intensity_val = unpolarized_intensity(_model, σs; refζs = (1, 1, 1, 1))
-
-            println("$name:")
-            println("  Amplitude: $amplitude_val")
-            println("  Intensity: $intensity_val")
-            println()
-        end
-
-        # Total amplitude and intensity
-        total_amplitude = amplitude(model, σs; refζs = (1, 1, 1, 1))
-        total_intensity = unpolarized_intensity(model, σs; refζs = (1, 1, 1, 1))
-
-        println("=== Total ===")
-        println("Total Amplitude: $total_amplitude")
-        println("Total Intensity: $total_intensity")
-
-    else
-        println("Point is not in physical phase space")
-        println("Kibble = $(Kibble(σs, ms^2))")
-    end
-end
-
-function test_complex_lineshapes()
-    model = model_dist.model
-
-    ms = masses(model)
-
-    # Define a specific point
-    σ1 = 1.4  # GeV²
-    σ2 = 3.2  # GeV²
-    σs = Invariants(ms; σ1, σ2)
-
-    
-    print("Testing with σ1 = $σ1, σ2 = $σ2 and σs = $σs\n")
-
-
-
-    println("=== Complex Lineshape values =")
-
-    # Direkte Iteration über chains und names
-    for (i, name) in enumerate(model.names)
-        # Zugriff auf die DecayChain über model.chains[i]
-        dc = model.chains[i]
-        k = dc.k
-
-        s_test = σs[k]
-        amplitudeind = amplitude(model.chains[i], σs; refζs = (1, 1, 1, 1))
-
-        lineshape_value = dc.Xlineshape(s_test)
-
-        println("$name:", k)
-        println("  Lineshape(s=$s_test): $lineshape_value")
-        println("  |Lineshape|²: $(abs2(lineshape_value))")
-        println("  Real part: $(real(lineshape_value))")
-        println("  Imag part: $(imag(lineshape_value))")
-        println("  Amplitude: $amplitudeind")
-    end
-end
-
 function BreitWignerTest()
-
     m0 = 0.8955
     Γ = 0.047299
-
     s_test = 1.5
+    
     bw = BreitWigner(m0, Γ)
     bw_value = bw(s_test)
-    println("Breit-Wigner value at s = $s_test GeV²: $bw_value")
-
+    println("Breit-Wigner test:")
+    println("  m0 = $m0 GeV, Γ = $Γ GeV")
+    println("  BW($s_test GeV²) = $bw_value")
 end
 
 # Run the tests
 function main()
-    println("=== Test 1: Simple Amplitude ===")
-    test_simple_amplitude()
-    println("\n" * "="^50 * "\n")
+    println("="^70)
+    println("XiC → pKπ Amplitude Model Analysis")
+    println("="^70)
+    println()
+    
+    # Load the default model
+    println("📂 Loading default model from YAML...")
+    model = load_model_from_yaml("Default amplitude model")
+    println("✓ Model loaded successfully!")
+    println("  - Number of decay chains: $(length(model.chains))")
+    println("  - Number of unique resonances: $(length(unique(model.names)))")
+    println("  - Resonances: $(sort(unique(model.names)))")
+    println()
+    
+    # Calculate fit fractions
+    println("="^70)
+    println("CALCULATING FIT FRACTIONS")
+    println("="^70)
+    println()
+    
+    fit_fractions_df = calculate_fit_fractions(model; num_points=100000)
+    
+    println()
+    println("="^70)
+    println("FIT FRACTIONS RESULTS (Monte Carlo)")
+    println("="^70)
+    println(fit_fractions_df)
+    println()
+    
+    # Calculate fit fractions using grid method
+    println("="^70)
+    println("CALCULATING FIT FRACTIONS (GRID METHOD)")
+    println("="^70)
+    println()
+    
+    fit_fractions_grid_df = calculate_fit_fractions_grid(model; n_bins=200)
+    
+    println()
+    println("="^70)
+    println("FIT FRACTIONS RESULTS (Grid 200x200)")
+    println("="^70)
+    println(fit_fractions_grid_df)
+    println()
+    
+    # Test at a specific point
+    println("="^70)
+    println("SINGLE POINT TEST")
+    println("="^70)
+    println()
+    
+    test_simple_amplitude(model)
+    println()
+    
+    # Individual contributions
+    println("="^70)
+    println("INDIVIDUAL RESONANCE CONTRIBUTIONS AT TEST POINT")
+    println("="^70)
+    println()
+    
+    test_individual_resonances_short(model)
+end
 
-    println("=== Test 2: Individual Resonances ===")
-    test_individual_resonances()
-    println("\n" * "="^50 * "\n")
+# Test 1: Simple amplitude and intensity calculation
 
-    println("=== Test 3: Complex Lineshapes ===")
-    test_complex_lineshapes()
-
-    println("=== Test 4: Breit-Wigner ===")
-    BreitWignerTest()
+# Shortened version of test_individual_resonances
+function test_individual_resonances_short(model)
+    ms = masses(model)
+    σ1, σ2 = 1.4, 3.2
+    σs = Invariants(ms; σ1, σ2)
+    
+    if Kibble(σs, ms^2) < 0
+        chain_names = unique(model.names) |> collect |> sort
+        
+        # First calculate total intensity
+        total_intensity = unpolarized_intensity(model, σs; refζs = (1, 1, 1, 1))
+        
+        # Print header
+        @printf("%-25s | %20s | %20s\n", "Resonance", "Intensity", "Percentage")
+        println("-"^70)
+        
+        # Calculate and print each component
+        for name in chain_names
+            _model = model[model.names.==name]
+            intensity_val = unpolarized_intensity(_model, σs; refζs = (1, 1, 1, 1))
+            percentage = (intensity_val / total_intensity) * 100
+            @printf("%-25s | %20.6f | %19.3f%%\n", name, intensity_val, percentage)
+        end
+        
+        println("-"^70)
+        @printf("%-25s | %20.6f | %19.3f%%\n", "Total", total_intensity, 100.0)
+        println()
+        println("Test point: σ1 = $σ1 GeV², σ2 = $σ2 GeV²")
+    end
 end
 
 # Run if this file is executed directly
