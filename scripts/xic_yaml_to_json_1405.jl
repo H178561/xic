@@ -22,6 +22,28 @@ using HadronicLineshapes
 using ThreeBodyDecaysIO.ThreeBodyDecays: breakup
 
 
+function test_simple_amplitude(model)
+    ms = masses(model)
+    
+    # Define a specific point
+    σ1 = 1.4  # GeV²
+    σ2 = 3.2  # GeV²
+    σs = Invariants(ms; σ1, σ2)
+
+    # Check if the point is physical
+    if Kibble(σs, ms^2) < 0
+        # Calculate amplitude for this point
+        amplitude_value = amplitude(model, σs; refζs = (1, 1, 1, 1))
+        intensity_value = unpolarized_intensity(model, σs; refζs = (1, 1, 1, 1))
+
+        println("Test point: σ1 = $σ1 GeV², σ2 = $σ2 GeV², σs = $σs")
+        println("Amplitude: $amplitude_value")
+        println("Intensity: $intensity_value")
+    else
+        println("Point is not in physical phase space")
+    end
+end
+
 function F²(l, p, p0, d)
     pR = p * d
     p0R = p0 * d
@@ -165,7 +187,8 @@ for model in list
     # 0: Xic, 1:p, 2:pi, 3:K
     # -------------------------------------------------------------
     model = Lc2ppiKModel(; chains, couplings, isobarnames)
-
+    
+    test_simple_amplitude(model)
 
     # ... existing imports ...
 

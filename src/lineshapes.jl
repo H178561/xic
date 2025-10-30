@@ -7,7 +7,10 @@ function F²(l, p, p0, d)
     l == 0 && return 1.0
     l == 1 && return (1 + p0R^2) / (1 + pR^2)
     l == 2 && return (9 + 3p0R^2 + p0R^4) / (9 + 3pR^2 + pR^4)
-    l != 3 && error("l==$(l)>2 cannot be")
+    l == 3 && return (225 + 45 * (p0R^2) + 6 * (p0R^2)^2 + (p0R^2)^3) / (225 + 45 * (pR^2) + 6 * (pR^2)^2 + (pR^2)^3)
+    l == 4 && return (11025 + 1575 * (p0R^2) + 135 * (p0R^2)^2 + 10 * (p0R^2)^3 + (p0R^2)^4) /
+                             (11025 + 1575 * (pR^2) + 135 * (pR^2)^2 + 10 * (pR^2)^3 + (pR^2)^4)
+    l != 5 && error("l==$(l)>4 cannot be")
     return (225 + 45 * (p0R^2) + 6 * (p0R^2)^2 + (p0R^2)^3) / (225 + 45 * (pR^2) + 6 * (pR^2)^2 + (pR^2)^3)
 end
 
@@ -90,6 +93,7 @@ function (BW::Flatte1405)(σ)
         Γ1 = Γ₀ * (p / p0) * m / sqrt(σ)
         Γ2 = Γ₀ * (p′ / p0′) * m / sqrt(σ)
         Γ = Γ1 + Γ2
+        println("Using Flatte1405 with single width: Γ₀=$(Γ₀)")
     elseif length(BW.pars) == 3
         # Alternative model 20: (m, g1, g2) - separate couplings for each channel
         m, g1, g2 = BW.pars
@@ -99,6 +103,7 @@ function (BW::Flatte1405)(σ)
         Γ1 = g1 * (p / p0) * m / sqrt(σ)      # pK channel with g1
         Γ2 = g2 * (p′ / p0′) * m / sqrt(σ)    # Σπ channel with g2
         Γ = Γ1 + Γ2
+        println("Using Flatte1405 with separate couplings: g1=$(g1), g2=$(g2)")
     else
         error("Flatte1405 pars must have 2 (m, Γ₀) or 3 (m, g1, g2) elements")
     end

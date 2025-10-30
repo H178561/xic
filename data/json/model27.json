@@ -2556,7 +2556,7 @@
             {
                 "point": "validation_point_m31sq",
                 "distribution": "L(2100)_BWminL",
-                "value": "0.0 + 0.0im"
+                "value": "0.5986908606853449 + 0.009753962711702965im"
             },
             {
                 "point": "validation_point_m23sq",

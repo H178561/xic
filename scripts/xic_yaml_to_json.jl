@@ -22,14 +22,41 @@ using HadronicLineshapes
 using ThreeBodyDecaysIO.ThreeBodyDecays: breakup
 
 
+function test_simple_amplitude(model)
+    ms = masses(model)
+    
+    # Define a specific point
+    σ1 = 1.4  # GeV²
+    σ2 = 3.2  # GeV²
+    σs = Invariants(ms; σ1, σ2)
+
+    # Check if the point is physical
+    if Kibble(σs, ms^2) < 0
+        # Calculate amplitude for this point
+        amplitude_value = amplitude(model, σs; refζs = (1, 1, 1, 1))
+        intensity_value = unpolarized_intensity(model, σs; refζs = (1, 1, 1, 1))
+
+        println("Test point: σ1 = $σ1 GeV², σ2 = $σ2 GeV², σs = $σs")
+        println("Amplitude: $amplitude_value")
+        println("Intensity: $intensity_value")
+    else
+        println("Point is not in physical phase space")
+    end
+end
+
+
 function F²(l, p, p0, d)
     pR = p * d
     p0R = p0 * d
     l == 0 && return 1.0
     l == 1 && return (1 + p0R^2) / (1 + pR^2)
     l == 2 && return (9 + 3p0R^2 + p0R^4) / (9 + 3pR^2 + pR^4)
-    l != 3 && error("l==$(l)>2 cannot be")
-    return (225 + 45 * (p0R^2) + 6 * (p0R^2)^2 + (p0R^2)^3) / (225 + 45 * (pR^2) + 6 * (pR^2)^2 + (pR^2)^3)
+    # F-wave (l=3)
+    l == 3 && return (225 + 45 * (p0R^2) + 6 * (p0R^2)^2 + (p0R^2)^3) / (225 + 45 * (pR^2) + 6 * (pR^2)^2 + (pR^2)^3)
+    # G-wave (l=4)
+    l == 4 && return (11025 + 1575 * (p0R^2) + 135 * (p0R^2)^2 + 10 * (p0R^2)^3 + (p0R^2)^4) /
+                             (11025 + 1575 * (pR^2) + 135 * (pR^2)^2 + 10 * (pR^2)^3 + (pR^2)^4)
+    error("l==$(l)>4 is not supported")
 end
 # -------------------------------------------------------------
 # Load model and particle definitions from YAML files
@@ -56,9 +83,9 @@ list = [
     #"Alternative model 9 - Both K(700) and K(1430) Relativistic BW with free mass and width",
     #"Alternative model 10 - L(1800) resonance removed",
     #"Alternative model 11 - L(1890) resonance removed",
+    #"Alternative model 12 - K(1430) m=1370 MeV, Γ=180 MeV",
     #"Alternative model 13 - K(1430) m=1370 MeV, Γ=360 MeV",
     #"Alternative model 14 - K(1430) m=1430 MeV, Γ=180 MeV",
-    #"Alternative model 12 - K(1430) m=1370 MeV, Γ=180 MeV",
     #"Alternative model 15 - K(1430) m=1430 MeV, Γ=360 MeV",
     #"Alternative model 16 - Multiple K mass variations 1",
     #"Alternative model 17 - Multiple K mass variations 2",
@@ -71,14 +98,14 @@ list = [
     #"Alternative model 24 - L(1830) contribution added with free width",
     #"Alternative model 25 - L(1890) with free mass and width",
     #"Alternative model 26 - L(2000) with free mass and width",
-    #"Alternative model 27 - L(2100) contribution added with PDG values",
+    "Alternative model 27 - L(2100) contribution added with PDG values",
     #"Alternative model 28 - L(2110) contribution added with PDG values",
     #"Alternative model 29 - S(1670) contribution added with PDG values",
     #"Alternative model 30 - S(1775) contribution added with PDG values",
-    "Alternative model 31 - Free radial parameter rXic"
+    #"Alternative model 31 - Free radial parameter rXic"
 ]
 
-global i = 31
+global i = 22
 
 for model in list
     global i
@@ -124,8 +151,7 @@ for model in list
     # -------------------------------------------------------------
     model = Lc2ppiKModel(; chains, couplings, isobarnames)
 
-
-    # ... existing imports ...
+    test_simple_amplitude(model)
 
     # Konvertierungsfunktionen hinzufügen
     function convert_breitWignerMinL_to_shapes_format(bw_minl)

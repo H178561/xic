@@ -52,7 +52,7 @@ end
 # ============================================================
 # Calculate Fit Fractions for each resonance
 # ============================================================
-function calculate_fit_fractions(model; num_points=100000)
+function calculate_fit_fractions(model; num_points=10000)
     # Initialize
     ms = masses(model)
     chain_names = Set(model.names) |> collect |> sort
@@ -284,61 +284,113 @@ function main()
     println("="^70)
     println()
     
+    
+
+    # list of models
+    list = [
+        #"Default amplitude model",
+        "Alternative model 1 - Delta resonances with free mass and width",
+        #"Alternative model 2 - K(700) Relativistic BW",
+        #"Alternative model 3 - K(700) with free mass and width",
+        #"Alternative model 4 - K(1430) Relativistic BW",
+        #"Alternative model 5 - K(1430) with free mass and width",
+        #"Alternative model 6 - Both K(700) and K(1430) Relativistic BW",
+        #"Alternative model 7 - Both K(700) and K(1430) with free mass and width",
+        #"Alternative model 8 - K(700) Relativistic BW with free mass and width",
+        #"Alternative model 9 - Both K(700) and K(1430) Relativistic BW with free mass and width",
+        #"Alternative model 10 - L(1800) resonance removed",
+        #"Alternative model 11 - L(1890) resonance removed",
+        #"Alternative model 12 - K(1430) m=1370 MeV, Γ=180 MeV",
+        #"Alternative model 13 - K(1430) m=1370 MeV, Γ=360 MeV",
+        #"Alternative model 14 - K(1430) m=1430 MeV, Γ=180 MeV",
+        #"Alternative model 12 - K(1430) m=1370 MeV, Γ=180 MeV",
+        #"Alternative model 15 - K(1430) m=1430 MeV, Γ=360 MeV",
+        #"Alternative model 16 - Multiple K mass variations 1",
+        #"Alternative model 17 - Multiple K mass variations 2",
+        #"Alternative model 18 - Multiple K mass variations 3",
+        #"Alternative model 19 - Multiple K mass variations 4",
+        #"Alternative model 20 - L(1405) free Flatte widths",
+        #"Alternative model 21 - L(1600) with free mass and width",
+        #"Alternative model 22 - L(1710) with free mass and width",
+        #"Alternative model 23 - L(1800) contribution added with free mass and width",
+        #"Alternative model 24 - L(1830) contribution added with free width",
+        #"Alternative model 25 - L(1890) with free mass and width",
+        #"Alternative model 26 - L(2000) with free mass and width",
+        #"Alternative model 27 - L(2100) contribution added with PDG values",
+        #"Alternative model 28 - L(2110) contribution added with PDG values",
+        #"Alternative model 29 - S(1670) contribution added with PDG values",
+        #"Alternative model 30 - S(1775) contribution added with PDG values",
+        #"Alternative model 31 - Free radial parameter rXic"
+    ]
+
     # Load the default model
     println("📂 Loading default model from YAML...")
-    model = load_model_from_yaml("Default amplitude model")
-    println("✓ Model loaded successfully!")
-    println("  - Number of decay chains: $(length(model.chains))")
-    println("  - Number of unique resonances: $(length(unique(model.names)))")
-    println("  - Resonances: $(sort(unique(model.names)))")
-    println()
+    #model = load_model_from_yaml("Default amplitude model")
+    #model = load_model_from_yaml("Alternative model 1 - Delta resonances with free mass and width")
+
+    for model_name in list
+        model = load_model_from_yaml(model_name)
+        println("✓ Model loaded successfully!", model_name)
+        println("  - Number of decay chains: $(length(model.chains))")
+        println("  - Number of unique resonances: $(length(unique(model.names)))")
+        println("  - Resonances: $(sort(unique(model.names)))")
+        println()
+        #=
+        # Calculate fit fractions
+        println("="^70)
+        println("CALCULATING FIT FRACTIONS")
+        println("="^70)
+        println()
+        
+        fit_fractions_df = calculate_fit_fractions(model; num_points=10000)
+        
+        println()
+        println("="^70)
+        println("FIT FRACTIONS RESULTS (Monte Carlo)")
+        println("="^70)
+        println(fit_fractions_df)
+        println()
+
+        
+        # Calculate fit fractions using grid method
+        println("="^70)
+        println("CALCULATING FIT FRACTIONS (GRID METHOD)")
+        println("="^70)
+        println()
+        
+        
+        
+        =#
+
+        fit_fractions_grid_df = calculate_fit_fractions_grid(model; n_bins=200)
+
+        println()
+        println("="^70)
+        println("FIT FRACTIONS RESULTS (Grid 200x200)")
+        println("="^70)
+        println(fit_fractions_grid_df)
+        println()
+
+        # Test at a specific point
+        println("="^70)
+        println("SINGLE POINT TEST")
+        println("="^70)
+        println()
+        
+        test_simple_amplitude(model)
+        println()
+        
+        # Individual contributions
+        println("="^70)
+        println("INDIVIDUAL RESONANCE CONTRIBUTIONS AT TEST POINT")
+        println("="^70)
+        println()
+        
+        test_individual_resonances_short(model)
+    end
+
+   
     
-    # Calculate fit fractions
-    println("="^70)
-    println("CALCULATING FIT FRACTIONS")
-    println("="^70)
-    println()
-    
-    fit_fractions_df = calculate_fit_fractions(model; num_points=100000)
-    
-    println()
-    println("="^70)
-    println("FIT FRACTIONS RESULTS (Monte Carlo)")
-    println("="^70)
-    println(fit_fractions_df)
-    println()
-    
-    # Calculate fit fractions using grid method
-    println("="^70)
-    println("CALCULATING FIT FRACTIONS (GRID METHOD)")
-    println("="^70)
-    println()
-    
-    fit_fractions_grid_df = calculate_fit_fractions_grid(model; n_bins=200)
-    
-    println()
-    println("="^70)
-    println("FIT FRACTIONS RESULTS (Grid 200x200)")
-    println("="^70)
-    println(fit_fractions_grid_df)
-    println()
-    
-    # Test at a specific point
-    println("="^70)
-    println("SINGLE POINT TEST")
-    println("="^70)
-    println()
-    
-    test_simple_amplitude(model)
-    println()
-    
-    # Individual contributions
-    println("="^70)
-    println("INDIVIDUAL RESONANCE CONTRIBUTIONS AT TEST POINT")
-    println("="^70)
-    println()
-    
-    test_individual_resonances_short(model)
 end
 
 # Test 1: Simple amplitude and intensity calculation
